@@ -10,6 +10,7 @@ builder.Services.AddControllers();
 builder
     .AddSwaggerConfig()
     .AddDbContextConfig()
+    .AddCorsConfig()
     .AddIdentityConfig();
 
 var app = builder.Build();
@@ -17,9 +18,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseCors("Development");
     app.UseSwagger();
     app.UseSwaggerUI();
+
 }
 
 app.UseHttpsRedirection();
