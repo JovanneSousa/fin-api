@@ -51,6 +51,22 @@ namespace fin_api.Controllers
             return Problem("Falha ao registrar o usuário");
         }
 
+        [HttpPost("login")]
+        public async Task<ActionResult> Login(LoginUserViewModel loginUser)
+        {
+            var user = await _userManager.FindByEmailAsync(loginUser.Email);
+            if (!ModelState.IsValid || user == null) return BadRequest(ModelState);
+
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, loginUser.Password, false, true);
+
+            if (result.Succeeded)
+            {
+                return Ok(await GerarJwt(loginUser.Email));
+            }
+
+            return Problem("Usuário ou senha incorreta");
+        }
+
         private async Task<string> GerarJwt(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
