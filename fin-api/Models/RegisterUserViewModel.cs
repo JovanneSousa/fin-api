@@ -17,6 +17,6 @@ namespace fin_api.Models
         public string Password { get; set; }
 
         [Compare("Password", ErrorMessage = "As senhas não conferem")]
-        public string ConfirmPasswrod { get; set; }
+        public string ConfirmPassword { get; set; }
     }
 }

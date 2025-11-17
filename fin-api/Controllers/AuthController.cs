@@ -45,7 +45,7 @@ namespace fin_api.Controllers
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
-                return Ok(await GerarJwt(registerUser.Email));
+                return Ok(new { token = await GerarJwt(registerUser.Email) });
             }
 
             return Problem("Falha ao registrar o usuário");
@@ -61,7 +61,7 @@ namespace fin_api.Controllers
 
             if (result.Succeeded)
             {
-                return Ok(await GerarJwt(loginUser.Email));
+                return Ok(new { token = await GerarJwt(loginUser.Email) });
             }
 
             return Problem("Usuário ou senha incorreta");
