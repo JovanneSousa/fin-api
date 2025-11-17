@@ -54,8 +54,10 @@ namespace fin_api.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginUserViewModel loginUser)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var user = await _userManager.FindByEmailAsync(loginUser.Email);
-            if (!ModelState.IsValid || user == null) return BadRequest(ModelState);
+
+            if (user == null) return Problem("Usuário ou senha incorreta");
 
             var result = await _signInManager.PasswordSignInAsync(user.UserName, loginUser.Password, false, true);
 
