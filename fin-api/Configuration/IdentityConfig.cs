@@ -17,10 +17,7 @@ namespace fin_api.Configuration
 
             // Pegando o token e gerando chave encodada
 
-            var JwtSettingSection = builder.Configuration.GetSection("JwtSettings");
-            builder.Services.Configure<JwtSettings>(JwtSettingSection);
-
-            var jwtSettings = JwtSettingSection.Get<JwtSettings>();
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
             var key = Encoding.ASCII.GetBytes(jwtSettings.Segredo);
 
             builder.Services.AddAuthentication(o =>

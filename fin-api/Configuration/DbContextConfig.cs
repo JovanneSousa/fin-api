@@ -9,7 +9,8 @@ namespace fin_api.Configuration
         {
             builder.Services.AddDbContext<ApiDbContext>(o =>
             {
-                o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+                o.UseNpgsql(connectionString);
             });
 
             return builder;

@@ -4,17 +4,13 @@
     {
         public static WebApplicationBuilder AddCorsConfig(this WebApplicationBuilder builder)
         {
+            var webapp = builder.Configuration["MEU_APP"];
             builder.Services.AddCors(o =>
             {
-                o.AddPolicy("Development", builder =>
-                builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
                 o.AddPolicy("Production", builder =>
                 builder
-                     .WithOrigins("https://localhost:9000")
-                     .WithMethods("POST")
+                     .WithOrigins(webapp)
+                     .WithMethods("POST, GET")
                      .AllowAnyHeader());
             });
 
