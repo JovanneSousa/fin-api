@@ -8,9 +8,12 @@
             builder.Services.AddCors(o =>
             {
                 o.AddPolicy("Production", builder =>
-                builder
-                     .AllowAnyOrigin()
-                     .AllowAnyMethod());
+                {
+                    builder
+                    .WithOrigins(webapp)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+                });
             });
 
             return builder;
