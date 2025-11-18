@@ -16,8 +16,15 @@ namespace fin_api.Configuration
                 .AddEntityFrameworkStores<ApiDbContext>();
 
             // Pegando o token e gerando chave encodada
+            builder.Services.Configure<JwtSettings>(
+                builder.Configuration.GetSection("JwtSettings"));   
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+            if (string.IsNullOrEmpty(jwtSettings?.Segredo))
+                throw new InvalidOperationException("Segredo JWT não configurado.");
+
+            Console.WriteLine($"Segredo JWT: {jwtSettings?.Segredo}");
+
             var key = Encoding.ASCII.GetBytes(jwtSettings.Segredo);
 
             builder.Services.AddAuthentication(o =>

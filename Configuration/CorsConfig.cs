@@ -9,9 +9,8 @@
             {
                 o.AddPolicy("Production", builder =>
                 builder
-                     .WithOrigins(webapp)
-                     .AllowAnyMethod()
-                     .AllowAnyHeader());
+                     .AllowAnyOrigin()
+                     .AllowAnyMethod());
             });
 
             return builder;
