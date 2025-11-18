@@ -16,8 +16,8 @@
                     policy
                         .WithOrigins(allowedOrigin)
                         .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials();
+                        .AllowCredentials()
+                        .AllowAnyHeader();
                 });
             });
 
