@@ -10,7 +10,7 @@
                 o.AddPolicy("Production", builder =>
                 builder
                      .WithOrigins(webapp)
-                     .WithMethods("POST, GET")
+                     .AllowAnyMethod()
                      .AllowAnyHeader());
             });
 
