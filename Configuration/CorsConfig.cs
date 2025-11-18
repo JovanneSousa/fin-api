@@ -4,15 +4,20 @@
     {
         public static WebApplicationBuilder AddCorsConfig(this WebApplicationBuilder builder)
         {
-            var webapp = builder.Configuration["MEU_APP"];
+            var allowedOrigin = builder.Configuration["MEU_APP"];
+
+            if (string.IsNullOrWhiteSpace(allowedOrigin))
+                throw new Exception("A variável de ambiente 'MEU_APP' não foi definida.");
+
             builder.Services.AddCors(o =>
             {
-                o.AddPolicy("Production", builder =>
+                o.AddPolicy("Production", policy =>
                 {
-                    builder
-                    .WithOrigins(webapp)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
+                    policy
+                        .WithOrigins(allowedOrigin)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
 
