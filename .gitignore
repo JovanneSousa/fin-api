@@ -1,3 +1,4 @@
-fin-api/obj
-fin-api/bin
+bin/
+obj/
+Migrations/
 .vs/
