@@ -35,10 +35,15 @@ namespace fin_api.Controllers
             if(!ModelState.IsValid) return BadRequest(ModelState);
             var user = new IdentityUser
             {
-                UserName = registerUser.Nome,
+                UserName = registerUser.Nome + "-" + Guid.NewGuid().ToString(),
                 Email = registerUser.Email,
                 EmailConfirmed = true
             };
+
+            var usuarioPorEmail = await _userManager.FindByEmailAsync(registerUser.Email);
+            var usuarioPorNome = await _userManager.FindByNameAsync(registerUser.Nome);
+
+            if (usuarioPorEmail != null || usuarioPorNome != null) return Problem("Usuário já cadastrado");
 
             var result = await _userManager.CreateAsync(user, registerUser.Password);
 
@@ -76,7 +81,7 @@ namespace fin_api.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName.Split("-")[0])
             };
 
             // Adiciona roles como claims
