@@ -74,6 +74,12 @@ namespace fin_api.Controllers
             return Problem("Usuário ou senha incorreta");
         }
 
+        [HttpGet("wake-up")]
+        public ActionResult WakeUp()
+        {
+            return Ok("API is awake!");
+        }
+
         private async Task<string> GerarJwt(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
