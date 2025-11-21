@@ -21,6 +21,11 @@ namespace fin_api.Services
 
         public async Task<Categoria> CreateCategoriaAsync(Categoria categoria)
         {
+
+            var exists = await _repository.ExistsAsync(categoria.UserId, categoria.Name);
+            if (exists)
+                throw new InvalidOperationException("Categoria já existe para este usuário.");
+
             await _repository.AddAsync(categoria);
             return categoria;
         }

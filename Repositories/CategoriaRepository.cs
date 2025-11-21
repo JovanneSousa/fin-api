@@ -43,5 +43,12 @@ namespace fin_api.Repositories
             }
         }
 
+        public async Task<bool> ExistsAsync(string userId, string name)
+        {
+            return await _context.Categories
+                .AnyAsync(c => c.UserId == userId && c.Name.ToLower() == name.ToLower());
+        }
+
+
     }
 }

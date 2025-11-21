@@ -87,7 +87,8 @@ namespace fin_api.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName.Split("-")[0])
+                new Claim(ClaimTypes.Name, user.UserName.Split("-")[0]),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
             // Adiciona roles como claims

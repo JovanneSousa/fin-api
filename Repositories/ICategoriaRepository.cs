@@ -10,7 +10,7 @@ namespace fin_api.Repositories
         Task AddAsync(Categoria categoria);
         Task UpdateAsync(Categoria categoria);
         Task DeleteAsync(string id);
-
+        Task<bool> ExistsAsync(string userId, string name);
 
     }
 }

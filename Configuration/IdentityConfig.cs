@@ -23,8 +23,6 @@ namespace fin_api.Configuration
             if (string.IsNullOrEmpty(jwtSettings?.Segredo))
                 throw new InvalidOperationException("Segredo JWT não configurado.");
 
-            Console.WriteLine($"Segredo JWT: {jwtSettings?.Segredo}");
-
             var key = Encoding.ASCII.GetBytes(jwtSettings.Segredo);
 
             builder.Services.AddAuthentication(o =>
