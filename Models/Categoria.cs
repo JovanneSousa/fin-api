@@ -1,5 +1,6 @@
 ﻿using fin_api.Enums;
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace fin_api.Models
 {
@@ -10,6 +11,7 @@ namespace fin_api.Models
         public TransacaoType Type { get; set; }
         public string UserId { get; set; }
         public bool IsDefault { get; set; }
+        [JsonIgnore]
         public ICollection<Transacao> Transacoes { get; set; } = new List<Transacao>();
     }
 }

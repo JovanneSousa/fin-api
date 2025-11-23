@@ -1,5 +1,6 @@
 ﻿using fin_api.Models;
 using fin_api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ namespace fin_api.Controllers
 {
     [ApiController]
     [Route("api/categories")]
+    [Authorize]
     public class CategoriesController: ControllerBase
     {
         private readonly ICategoriaService _categoriaService;

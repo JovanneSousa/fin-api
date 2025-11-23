@@ -13,7 +13,6 @@ namespace fin_api.Models
         public decimal Valor { get; set; }
         public string CategoriaId { get; set; }
         public Categoria Categoria { get; set; }
-        public DateTime Date { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public bool IsRecurring { get; set; }
@@ -23,6 +22,5 @@ namespace fin_api.Models
         public int? ParcelaAtual { get; set; }
         public string? ParentTransactionId { get; set; }
         public Transacao ParentTransaction { get; set; }
-        public bool ParcelaRecorrente { get; set; }
     }
 }
