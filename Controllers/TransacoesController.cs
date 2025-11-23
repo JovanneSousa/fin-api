@@ -1,5 +1,4 @@
-﻿using fin_api.Dto;
-using fin_api.Models;
+﻿using fin_api.Models;
 using fin_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
