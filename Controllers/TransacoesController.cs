@@ -46,5 +46,22 @@ namespace fin_api.Controllers
 
             return Ok(transacao);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Usuário não autenticado.");
+
+            var transacao = await _transacaoService.GetTransactionAsync(id);
+            if(transacao.Id == null || transacao.UserId != userId)
+                return NotFound("Transação não encontrada.");
+
+            var success = await _transacaoService.DeleteTransactionAsync(id);
+            if (!success)
+                return NotFound("Transação não encontrada.");
+            return NoContent();
+        }
     }
 }
