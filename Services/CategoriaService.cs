@@ -8,7 +8,7 @@ namespace fin_api.Services
 
         private readonly ICategoriaRepository _repository;
 
-        public CategoriaService(ICategoriaRepository repository)
+        public CategoriaService(ICategoriaRepository repository, ITransacaoRepository transacaoRepository)
         {
             _repository = repository;
         }
