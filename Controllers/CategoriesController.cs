@@ -1,4 +1,5 @@
 ﻿using fin_api.Models;
+using fin_api.Repositories;
 using fin_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,10 +16,13 @@ namespace fin_api.Controllers
     {
         private readonly ICategoriaService _categoriaService;
 
-        public CategoriesController(ICategoriaService service)
+        private readonly ITransacaoRepository _transacaoService;
+
+        public CategoriesController(ICategoriaService service, ITransacaoRepository transacaoService)
         {
             _categoriaService = service;
-            
+            _transacaoService = transacaoService;
+
         }
 
 
@@ -62,15 +66,21 @@ namespace fin_api.Controllers
         {
             var categoria = await _categoriaService.GetCategoriaAsync(id);
             if (categoria == null)
-                return NotFound("Categoria não encontrada.");
+                return NotFound(new { message = "Categoria não encontrada." });
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized("Usuário não autenticado.");
+                return Unauthorized(new { message = "Usuário não autenticado." });
             if (categoria.UserId != userId)
                 return Forbid("Você não tem permissão para deletar esta categoria.");
+
+            var transacaoExists = await _transacaoService.GetAllAsync(userId);
+            if(transacaoExists.Any(t => t.CategoriaId == id))
+                return BadRequest(new { message = "Não é possível deletar uma categoria associada a transações." });
+
             var result = await _categoriaService.DeleteCategoriaAsync(id);
             if (!result)
-                return BadRequest("Não foi possível deletar a categoria.");
+                return BadRequest(new { message = "Não foi possível deletar a categoria." });
             return NoContent();
         }
     }
