@@ -63,5 +63,24 @@ namespace fin_api.Controllers
                 return NotFound("Transação não encontrada.");
             return NoContent();
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Transacao>> GetById(string id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Usuário não autenticado" });
+
+            var transacao = await _transacaoService.GetTransactionAsync(id);
+            if (transacao.UserId != userId) 
+                return Unauthorized(new { message = "Você não tem permissão para excluir essa tarefa" });
+
+            if (transacao == null) 
+                return NotFound(new { message = "Transação não encontrada" });
+
+            return Ok(transacao);
+
+
+        }
     }
 }
