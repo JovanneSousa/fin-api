@@ -82,5 +82,35 @@ namespace fin_api.Controllers
 
 
         }
+
+        [HttpPost("{id}")]
+        public async Task<ActionResult<Transacao>> Update(string id, [FromBody] Transacao transacao)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Usuário não autenticado.");
+
+            var existingTransacao = await _transacaoService.GetTransactionAsync(id);
+            if (existingTransacao == null)
+                return NotFound(new { message = "Transação não encontrada." });
+
+            if(existingTransacao.UserId != userId)
+                return Unauthorized(new { message = "Você não tem permissão para atualizar essa transação." });
+
+            existingTransacao.Titulo = transacao.Titulo;
+            existingTransacao.Valor = transacao.Valor;
+            existingTransacao.CategoriaId = transacao.CategoriaId;
+            existingTransacao.IsRecurring = transacao.IsRecurring;
+            existingTransacao.UpdatedAt = DateTime.UtcNow;
+
+            var updatedTransacao = await _transacaoService.UpdateTransactionAsync(existingTransacao);
+            if(updatedTransacao == null)
+                return BadRequest(new { message = "Erro ao atualizar a transação." });
+
+            return Ok(updatedTransacao);
+        }
     }
 }
