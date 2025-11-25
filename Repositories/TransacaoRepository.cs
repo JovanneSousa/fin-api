@@ -44,5 +44,15 @@ namespace fin_api.Repositories
             }
         }
 
+        public async Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate)
+        {
+            return await _context.Transactions
+                .Include(t => t.Categoria)
+                .Where(t => t.UserId == userId &&
+                            t.CreatedAt >= startDate &&
+                            t.CreatedAt <= endDate)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

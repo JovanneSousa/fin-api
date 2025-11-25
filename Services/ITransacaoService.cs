@@ -5,6 +5,7 @@ namespace fin_api.Services
     public interface ITransacaoService
     {
         Task<IEnumerable<Transacao>> ListTransactionsAsync(string userId);
+        Task<IEnumerable<Transacao>> ListTransactionsByPeriodAsync(string userId, DateTime startDate, DateTime endDate);
         Task<Transacao> GetTransactionAsync(string id);
         Task<Transacao> CreateTransactionAsync(Transacao transacao);
         Task<Transacao> UpdateTransactionAsync(Transacao transacao);

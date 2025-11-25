@@ -8,7 +8,7 @@ namespace fin_api.Repositories
         public Task<Transacao> GetByIdAsync(string id);
 
         public Task<IEnumerable<Transacao>> GetAllAsync(string userId);
-
+        Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate);
         public Task AddAsync(Transacao transaction);
 
         public Task UpdateAsync(Transacao transaction);

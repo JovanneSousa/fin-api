@@ -37,5 +37,10 @@ namespace fin_api.Services
             await _repository.DeleteAsync(id);
             return true;
         }
+
+        public async Task<IEnumerable<Transacao>> ListTransactionsByPeriodAsync(string userId, DateTime startDate, DateTime endDate)
+        {
+            return await _repository.GetByPeriodAsync(userId, startDate, endDate);
+        }
     }
 }
