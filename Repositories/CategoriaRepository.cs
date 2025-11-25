@@ -19,7 +19,7 @@ namespace fin_api.Repositories
             => await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
         public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
-            => await _context.Categories.Where(c => c.UserId == userId).ToListAsync();
+            => await _context.Categories.Where(c => c.UserId == userId || c.IsDefault).ToListAsync();
 
         public async Task AddAsync(Categoria categoria)
         {
@@ -46,7 +46,7 @@ namespace fin_api.Repositories
         public async Task<bool> ExistsAsync(string userId, string name)
         {
             return await _context.Categories
-                .AnyAsync(c => c.UserId == userId && c.Name.ToLower() == name.ToLower());
+                .AnyAsync(c => (c.UserId == userId || c.IsDefault ) && c.Name.ToLower() == name.ToLower());
         }
 
 
