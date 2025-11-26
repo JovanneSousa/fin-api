@@ -32,15 +32,15 @@ namespace fin_api.Controllers
 
         [HttpGet("periodo")]
         public async Task<ActionResult<IEnumerable<Transacao>>> FiltrarTransacoes(
-            [FromQuery] DateTime inicio,
-            [FromQuery] DateTime fim)
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Usuário não autenticado.");
 
-            var inicioUtc = inicio.ToUniversalTime();
-            var fimUtc = fim.ToUniversalTime();
+            var inicioUtc = startDate.ToUniversalTime();
+            var fimUtc = endDate.ToUniversalTime();
 
             var transacoes = await _transacaoService.ListTransactionsByPeriodAsync(
                 userId,
