@@ -39,8 +39,11 @@ namespace fin_api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Usuário não autenticado.");
 
-            var inicioUtc = startDate.ToUniversalTime();
-            var fimUtc = endDate.ToUniversalTime();
+            var startLocal = startDate.Date;
+            var endLocal = endDate.Date.AddDays(1).AddTicks(-1);
+
+            var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(startLocal);
+            var fimUtc = TimeZoneInfo.ConvertTimeToUtc(endLocal);
 
             var transacoes = await _transacaoService.ListTransactionsByPeriodAsync(
                 userId,
