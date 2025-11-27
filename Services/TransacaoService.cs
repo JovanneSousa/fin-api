@@ -68,15 +68,10 @@ namespace fin_api.Services
         {
             if (origem.RecorrenciaEndDate == null || origem.RecorrenciaType == null) return;
 
-            var data = origem.DataMovimentacao;
+            var data = origem.DataMovimentacao.AddMonths(1);
 
-            while (true)
+            while (data > origem.RecorrenciaEndDate)
             {
-                data = data.AddMonths(1);
-
-                if (data > origem.RecorrenciaEndDate)
-                    break;
-
                 var nova = new Transacao
                 {
                     UserId = origem.UserId,
@@ -97,7 +92,12 @@ namespace fin_api.Services
         {
             var parcelas = origem.Parcelas ?? 1;
 
+            var valorParcela = Math.Round(origem.Valor / parcelas, 2);
+            var nomeParcela = origem.Titulo;
+
             origem.ParcelaAtual = 1;
+            origem.Titulo = $"{nomeParcela} (1/{parcelas})";
+            origem.Valor = valorParcela;
             await _repository.UpdateAsync(origem);
 
             for (int i = 2; i <= parcelas; i++)
@@ -105,9 +105,9 @@ namespace fin_api.Services
                 var nova = new Transacao
                 {
                     UserId = origem.UserId,
-                    Valor = origem.Valor / parcelas,
+                    Valor = valorParcela,
                     Type = TransacaoType.Despesa,
-                    Titulo = $"{origem.Titulo} ({i}/{parcelas})",
+                    Titulo = $"{nomeParcela} ({i}/{parcelas})",
                     CategoriaId = origem.CategoriaId,
                     ParcelaAtual = i,
                     Parcelas = parcelas,

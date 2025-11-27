@@ -49,9 +49,9 @@ namespace fin_api.Repositories
             return await _context.Transactions
                 .Include(t => t.Categoria)
                 .Where(t => t.UserId == userId &&
-                            t.CreatedAt >= startDate &&
-                            t.CreatedAt <= endDate)
-                .OrderByDescending(t => t.CreatedAt)
+                            t.DataMovimentacao >= startDate &&
+                            t.DataMovimentacao <= endDate)
+                .OrderByDescending(t => t.DataMovimentacao)
                 .ToListAsync();
         }
     }
