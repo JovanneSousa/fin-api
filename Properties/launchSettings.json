@@ -16,13 +16,7 @@
       "launchBrowser": false,
       "applicationUrl": "https://localhost:7148;http://localhost:5087",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-          "DB_CONNECTION":"Host=dpg-d4do2s9r0fns73equnjg-a.oregon-postgres.render.com;Port=5432;Database=fin_kr8v;Username=fin_kr8v_user;Password=EAOMnXpHcoUpzl8W5qDe2LttTXX6r9v1;SSL Mode=Require;Trust Server Certificate=true",
-          "JwtSettings__Audiencia":"https://localhost",
-          "JwtSettings__Emissor": "MeuSistema",
-          "JwtSettings__ExpiracaoHoras" : "1",
-          "JwtSettings__Segredo":"e43cc368-4bf7-4cc2-8db5-f631a5d0b5ee",
-          "MEU_APP":"http://localhost:5173"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
