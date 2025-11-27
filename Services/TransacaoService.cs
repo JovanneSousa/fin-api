@@ -116,6 +116,9 @@ namespace fin_api.Services
         {
             var existing = await _repository.GetByIdAsync(id);
             if (existing == null) return false;
+
+            if (existing.IsRecurring) await RemoverRecorrencias(existing.Id);
+
             await _repository.DeleteAsync(id);
             return true;
         }

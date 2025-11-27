@@ -64,6 +64,8 @@ namespace fin_api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Usuário não autenticado.");
 
+            transacao.DataMovimentacao = 
+                DateTime.SpecifyKind(transacao.DataMovimentacao, DateTimeKind.Utc);
             transacao.UserId = userId;
             var result = await _transacaoService.CreateTransactionAsync(transacao);
 
