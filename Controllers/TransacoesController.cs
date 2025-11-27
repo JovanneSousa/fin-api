@@ -109,7 +109,7 @@ namespace fin_api.Controllers
 
         }
 
-        [HttpPost("{id}")]
+        [HttpPut("{id}")]
         public async Task<ActionResult<Transacao>> Update(string id, [FromBody] Transacao transacao)
         {
             if (!ModelState.IsValid)
@@ -119,24 +119,25 @@ namespace fin_api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Usuário não autenticado.");
 
-            var existingTransacao = await _transacaoService.GetTransactionAsync(id);
-            if (existingTransacao == null)
+            var existing = await _transacaoService.GetTransactionAsync(id);
+            if (existing == null)
                 return NotFound(new { message = "Transação não encontrada." });
 
-            if (existingTransacao.UserId != userId)
+            if (existing.UserId != userId)
                 return Unauthorized(new { message = "Você não tem permissão para atualizar essa transação." });
 
-            existingTransacao.Titulo = transacao.Titulo;
-            existingTransacao.Valor = transacao.Valor;
-            existingTransacao.CategoriaId = transacao.CategoriaId;
-            existingTransacao.IsRecurring = transacao.IsRecurring;
-            existingTransacao.UpdatedAt = DateTime.UtcNow;
+            transacao.Id = existing.Id;
+            transacao.UserId = existing.UserId;
+            transacao.Type = existing.Type;
+            transacao.CreatedAt = existing.CreatedAt;
+            transacao.ParentTransactionId = existing.ParentTransactionId;
 
-            var updatedTransacao = await _transacaoService.UpdateTransactionAsync(existingTransacao);
-            if (updatedTransacao == null)
+            var updated = await _transacaoService.UpdateTransactionAsync(transacao);
+
+            if (updated == null)
                 return BadRequest(new { message = "Erro ao atualizar a transação." });
 
-            return Ok(updatedTransacao);
+            return Ok(updated);
         }
     }
 }

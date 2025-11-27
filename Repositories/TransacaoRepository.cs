@@ -54,5 +54,26 @@ namespace fin_api.Repositories
                 .OrderByDescending(t => t.DataMovimentacao)
                 .ToListAsync();
         }
+
+        public async Task UpdateRangeAsync(List<Transacao> transactions)
+        {
+            _context.UpdateRange(transactions);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Transacao>> GetByParentTransactionId(string parentTrancationId) =>
+            await _context.Transactions.Where(t => t.ParentTransactionId == parentTrancationId).ToListAsync();
+
+        public async Task RemoveRangeAsync(List<Transacao> transacao)
+        {
+            _context.Transactions.RemoveRange(transacao);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddRangeAsync(List<Transacao> transactions)
+        {
+            await _context.AddRangeAsync(transactions);
+            await _context.SaveChangesAsync();
+        }
     }
 }

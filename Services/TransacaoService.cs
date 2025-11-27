@@ -47,9 +47,70 @@ namespace fin_api.Services
 
         public async Task<Transacao> UpdateTransactionAsync(Transacao transacao)
         {
-            await _repository.UpdateAsync(transacao);
-            return transacao;
+            var existente = await _repository.GetByIdAsync(transacao.Id);
+            if (existente == null)
+                throw new Exception("Transação não existe");
+
+            if (existente.IsRecurring && !transacao.IsRecurring)
+            {
+                await RemoverRecorrencias(existente.Id);
+
+                existente.IsRecurring = false;
+                existente.RecorrenciaType = null;
+                existente.RecorrenciaEndDate = null;
+                existente.ParentTransactionId = null;
+
+                existente.Titulo = transacao.Titulo;
+                existente.Valor = transacao.Valor;
+                existente.CategoriaId = transacao.CategoriaId;
+                existente.DataMovimentacao = transacao.DataMovimentacao;
+
+                if (existente.Type == TransacaoType.Despesa && existente.Parcelas > 1)
+                    existente.Valor = Math.Round(existente.Valor * existente.Parcelas.Value, 2);
+
+                await _repository.UpdateAsync(existente);
+                return existente;
+            }
+
+            if (!existente.IsRecurring && transacao.IsRecurring)
+            {
+                existente.IsRecurring = true;
+                existente.RecorrenciaType = RecorrenciaType.Mensalmente;
+                existente.RecorrenciaEndDate = transacao.DataMovimentacao.AddMonths(12);
+
+                existente.Titulo = transacao.Titulo;
+                existente.Valor = transacao.Valor;
+                existente.CategoriaId = transacao.CategoriaId;
+                existente.DataMovimentacao = transacao.DataMovimentacao;
+
+                await _repository.UpdateAsync(existente);
+
+                if (existente.Type == TransacaoType.Renda)
+                    await GerarRecorrencias(existente);
+
+                if (existente.Type == TransacaoType.Despesa)
+                    await GerarParcelas(existente);
+
+                return existente;
+            }
+
+            if (existente.IsRecurring && transacao.IsRecurring)
+            {
+                await AtualizarRecorrencia(existente, transacao);
+                return existente;
+            }
+
+            existente.Titulo = transacao.Titulo;
+            existente.Valor = transacao.Valor;
+            existente.CategoriaId = transacao.CategoriaId;
+            existente.DataMovimentacao = transacao.DataMovimentacao;
+
+            await _repository.UpdateAsync(existente);
+
+            return existente;
         }
+
+
 
         public async Task<bool> DeleteTransactionAsync(string id)
         {
@@ -66,13 +127,14 @@ namespace fin_api.Services
 
         private async Task GerarRecorrencias(Transacao origem)
         {
-            if (origem.RecorrenciaEndDate == null || origem.RecorrenciaType == null) return;
+            if (origem.RecorrenciaEndDate == null || origem.RecorrenciaType == null) throw new InvalidOperationException("A recorrência não pode ser nula");
 
             var data = origem.DataMovimentacao.AddMonths(1);
+            var transactions = new List<Transacao>();
 
-            while (data > origem.RecorrenciaEndDate)
+            while (data <= origem.RecorrenciaEndDate)
             {
-                var nova = new Transacao
+               transactions.Add(new Transacao
                 {
                     UserId = origem.UserId,
                     Valor = origem.Valor,
@@ -83,40 +145,85 @@ namespace fin_api.Services
                     RecorrenciaType = origem.RecorrenciaType,
                     ParentTransactionId = origem.Id,
                     DataMovimentacao = data
-                };
+                });
 
-                await _repository.AddAsync(nova);
+                data = data.AddMonths(1);
+            }
+            if (transactions.Count == 0) throw new InvalidOperationException("Falha ao gerar recorrências");
+                
+            await _repository.AddRangeAsync(transactions);
+        }
+
+        private async Task AtualizarRecorrencia(Transacao existente, Transacao novosDados)
+        {
+            existente.Titulo = novosDados.Titulo;
+            existente.Valor = novosDados.Valor;
+            existente.CategoriaId = novosDados.CategoriaId;
+            existente.DataMovimentacao = novosDados.DataMovimentacao;
+            existente.RecorrenciaType = RecorrenciaType.Mensalmente;
+
+            await _repository.UpdateAsync(existente);
+
+            await RemoverRecorrencias(existente.Id);
+
+            if (existente.Type == TransacaoType.Renda) 
+            {
+                existente.RecorrenciaEndDate = novosDados.DataMovimentacao.AddMonths(11);
+                await GerarRecorrencias(existente);
+            }
+            if (existente.Type == TransacaoType.Despesa)
+            {
+                existente.Parcelas = novosDados.Parcelas;
+                await GerarParcelas(existente);
             }
         }
+
+        private async Task RemoverRecorrencias(string parentId)
+        {
+            var filhos = await _repository.GetByParentTransactionId(parentId);
+            if (filhos.Any())
+            {
+                await _repository.RemoveRangeAsync(filhos);
+            }
+        }
+
         private async Task GerarParcelas(Transacao origem)
         {
             var parcelas = origem.Parcelas ?? 1;
 
+            if (parcelas < 2)
+                throw new InvalidOperationException("Parcelas deve ser no mínimo 2");
+
             var valorParcela = Math.Round(origem.Valor / parcelas, 2);
-            var nomeParcela = origem.Titulo;
+            var nomeOriginal = origem.Titulo;
 
             origem.ParcelaAtual = 1;
-            origem.Titulo = $"{nomeParcela} (1/{parcelas})";
+            origem.Titulo = $"{nomeOriginal} (1/{parcelas})";
             origem.Valor = valorParcela;
             await _repository.UpdateAsync(origem);
 
+            var list = new List<Transacao>();
+
             for (int i = 2; i <= parcelas; i++)
             {
-                var nova = new Transacao
+                list.Add(new Transacao
                 {
                     UserId = origem.UserId,
                     Valor = valorParcela,
                     Type = TransacaoType.Despesa,
-                    Titulo = $"{nomeParcela} ({i}/{parcelas})",
+                    Titulo = $"{nomeOriginal} ({i}/{parcelas})",
                     CategoriaId = origem.CategoriaId,
                     ParcelaAtual = i,
                     Parcelas = parcelas,
                     ParentTransactionId = origem.Id,
                     DataMovimentacao = origem.DataMovimentacao.AddMonths(i - 1)
-                };
-
-                await _repository.AddAsync(nova);
+                });
             }
+
+            if (!list.Any())
+                throw new InvalidOperationException("Falha ao gerar parcelas");
+
+            await _repository.AddRangeAsync(list);
         }
 
     }
