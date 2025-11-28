@@ -88,7 +88,7 @@ namespace fin_api.Controllers
 
             var success = await _transacaoService.DeleteTransactionAsync(id);
             if (!success)
-                return NotFound("Transação não encontrada.");
+                return NotFound("Falha ao excluir a transação");
             return NoContent();
         }
 
