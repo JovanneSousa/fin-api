@@ -22,7 +22,6 @@ namespace fin_api.Controllers
         {
             _categoriaService = service;
             _transacaoService = transacaoService;
-
         }
 
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace fin_api.Data
 {
-    public class ApiDbContext : IdentityDbContext
+    public class ApiDbContext : DbContext
     {
         public ApiDbContext(DbContextOptions<ApiDbContext> options) : base (options)
         {
