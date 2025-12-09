@@ -14,5 +14,6 @@ namespace fin_api.Repositories
         Task<List<Categoria>> ListCategoriesHiddenAsync(string userId);
         Task<bool> IsCategoryHiddenAsync(string userId, string name);
         Task ShowHiddenCategory(Categoria categoria);
+        Task HiddenCategory(string userId, string categoriaId);
     }
 }

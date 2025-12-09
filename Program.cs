@@ -26,7 +26,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
 }
-app.UseCors("Production");
+app.UseCors("Development");
 
 app.UseHttpsRedirection();
 

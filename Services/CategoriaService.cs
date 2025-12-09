@@ -53,11 +53,15 @@ namespace fin_api.Services
             return categoria;
         }
 
-        public async Task<bool> DeleteCategoriaAsync(Categoria categoria)
+        public async Task<bool> DeleteCategoriaAsync(string userId, Categoria categoria)
         {
-
-            await _repository.DeleteAsync(categoria);
-            return true;
+            if (categoria != null && categoria.IsDefault) await _repository.HiddenCategory(userId, categoria.Id);
+            if (categoria != null && !categoria.IsDefault)
+            { 
+                await _repository.DeleteAsync(categoria);
+                return true;
+            }
+            return false;
         }
 
     }

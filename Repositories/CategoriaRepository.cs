@@ -35,12 +35,8 @@ namespace fin_api.Repositories
 
         public async Task DeleteAsync(Categoria categoria)
         {
-            if (categoria != null && categoria.IsDefault) await HiddenCategory(categoria);
-            if (categoria != null && !categoria.IsDefault)
-            {
                 _context.Categories.Remove(categoria);
                 await _context.SaveChangesAsync();
-            }
         }
 
         public async Task<bool> ExistsAsync(string userId, string name)
@@ -60,9 +56,9 @@ namespace fin_api.Repositories
                 .AnyAsync(uhc => uhc.UserId == userId && uhc.CategoryId == category.Id);
         }
 
-        private async Task HiddenCategory(Categoria categoria)
+        public async Task HiddenCategory(string userId, string categoriaId)
         {
-            var hiddenCategory = new UserHiddenCategory { UserId = categoria.UserId, CategoryId = categoria.Id };
+            var hiddenCategory = new UserHiddenCategory { UserId = userId, CategoryId = categoriaId };
             await _context.UserHiddenCategories.AddAsync(hiddenCategory);
             await _context.SaveChangesAsync();
         }
