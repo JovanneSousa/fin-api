@@ -14,7 +14,12 @@ namespace fin_api.Services
         }
 
         public async Task<IEnumerable<Categoria>> ListCategoriasAsync(string userId)
-            => await _repository.GetAllAsync(userId);
+        { 
+            var categories = await _repository.GetAllAsync(userId);
+            var hiddenCategoriesId = await _repository.ListCategoriesHiddenAsync(userId);
+
+            return categories.Where(c => !hiddenCategoriesId.Contains(c));
+        }
 
         public async Task<Categoria> GetCategoriaAsync(string id)
             => await _repository.GetByIdAsync(id);
@@ -48,11 +53,10 @@ namespace fin_api.Services
             return categoria;
         }
 
-        public async Task<bool> DeleteCategoriaAsync(string id)
+        public async Task<bool> DeleteCategoriaAsync(Categoria categoria)
         {
-            var existing = await _repository.GetByIdAsync(id);
-            if (existing == null) return false;
-            await _repository.DeleteAsync(id);
+
+            await _repository.DeleteAsync(categoria);
             return true;
         }
 

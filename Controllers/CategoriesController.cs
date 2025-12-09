@@ -76,8 +76,9 @@ namespace fin_api.Controllers
             var transacaoExists = await _transacaoService.GetAllAsync(userId);
             if(transacaoExists.Any(t => t.CategoriaId == id))
                 return BadRequest(new { message = "Não é possível deletar uma categoria associada a transações." });
+            if(categoria.IsDefault) categoria.UserId = userId;
 
-            var result = await _categoriaService.DeleteCategoriaAsync(id);
+            var result = await _categoriaService.DeleteCategoriaAsync(categoria);
             if (!result)
                 return BadRequest(new { message = "Não foi possível deletar a categoria." });
             return NoContent();

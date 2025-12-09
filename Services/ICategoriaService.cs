@@ -8,6 +8,6 @@ namespace fin_api.Services
         Task<Categoria> GetCategoriaAsync(string id);
         Task<Categoria> CreateCategoriaAsync(Categoria categoria);
         Task<Categoria> UpdateCategoriaAsync(Categoria categoria);
-        Task<bool> DeleteCategoriaAsync(string id);
+        Task<bool> DeleteCategoriaAsync(Categoria categoria);
     }
 }

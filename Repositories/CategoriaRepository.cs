@@ -33,9 +33,8 @@ namespace fin_api.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(Categoria categoria)
         {
-            var categoria = await GetByIdAsync(id);
             if (categoria != null && categoria.IsDefault) await HiddenCategory(categoria);
             if (categoria != null && !categoria.IsDefault)
             {
@@ -76,6 +75,19 @@ namespace fin_api.Repositories
                 _context.UserHiddenCategories.Remove(hiddenCategory);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Categoria>> ListCategoriesHiddenAsync(string userId)
+        {
+            var result = await _context.Categories
+                .Where(c => c.UserId == userId)
+                .Where(c => !_context.UserHiddenCategories
+                    .Where(h => h.UserId == userId)
+                    .Select(h => h.CategoryId)
+                    .Contains(c.Id))
+                .ToListAsync();
+
+            return result;
         }
     }
 }
