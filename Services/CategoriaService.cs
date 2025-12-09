@@ -21,10 +21,22 @@ namespace fin_api.Services
 
         public async Task<Categoria> CreateCategoriaAsync(Categoria categoria)
         {
-
             var exists = await _repository.ExistsAsync(categoria.UserId, categoria.Name);
-            if (exists)
+            var isHidden = await _repository.IsCategoryHiddenAsync(categoria.UserId, categoria.Name);
+            if (exists && !isHidden)
                 throw new InvalidOperationException("Categoria já existe para este usuário.");
+
+            if(exists && isHidden)
+            {
+                var category = await _repository.GetAllAsync(categoria.UserId);
+                var toUnhide = category.FirstOrDefault(c => c.Name.ToLower() == categoria.Name.ToLower() && c.IsDefault);
+                if (toUnhide != null)
+                {
+                    await _repository.ShowHiddenCategory(toUnhide);
+                    return toUnhide;
+                }
+
+            }
 
             await _repository.AddAsync(categoria);
             return categoria;

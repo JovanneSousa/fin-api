@@ -11,6 +11,7 @@ namespace fin_api.Repositories
         Task UpdateAsync(Categoria categoria);
         Task DeleteAsync(string id);
         Task<bool> ExistsAsync(string userId, string name);
-
+        Task<bool> IsCategoryHiddenAsync(string userId, string name);
+        Task ShowHiddenCategory(Categoria categoria);
     }
 }

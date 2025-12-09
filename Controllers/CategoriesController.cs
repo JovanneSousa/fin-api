@@ -70,7 +70,7 @@ namespace fin_api.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new { message = "Usuário não autenticado." });
-            if (categoria.UserId != userId || categoria.IsDefault)
+            if (categoria.UserId != userId && categoria.UserId != null)
                 return Unauthorized(new {message = "Você não tem permissão para deletar esta categoria." });
 
             var transacaoExists = await _transacaoService.GetAllAsync(userId);
