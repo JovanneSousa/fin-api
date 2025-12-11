@@ -1,4 +1,6 @@
-﻿using fin_api.Repositories;
+﻿using fin_api.Extensions;
+using fin_api.Notificacoes;
+using fin_api.Repositories;
 using fin_api.Services;
 
 namespace fin_api.Configuration
@@ -12,6 +14,10 @@ namespace fin_api.Configuration
             builder.Services.AddScoped<ITransacaoService, TransactionService>();
             builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
             builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+            builder.Services.AddScoped<INotificador, Notificador>();
+            builder.Services.AddScoped<IUser, AspNetUser>();
+
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             return builder;
         }

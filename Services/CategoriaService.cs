@@ -24,10 +24,10 @@ namespace fin_api.Services
         public async Task<Categoria> GetCategoriaAsync(string id)
             => await _repository.GetByIdAsync(id);
 
-        public async Task<Categoria> CreateCategoriaAsync(Categoria categoria)
+        public async Task<Categoria> CreateCategoriaAsync(string userId, Categoria categoria)
         {
-            var exists = await _repository.ExistsAsync(categoria.UserId, categoria.Name);
-            var isHidden = await _repository.IsCategoryHiddenAsync(categoria.UserId, categoria.Name);
+            var exists = await _repository.ExistsAsync(userId, categoria.Name);
+            var isHidden = await _repository.IsCategoryHiddenAsync(userId, categoria.Name);
             if (exists && !isHidden)
                 throw new InvalidOperationException("Categoria já existe para este usuário.");
 
@@ -42,7 +42,7 @@ namespace fin_api.Services
                 }
 
             }
-
+            categoria.UserId = userId;
             await _repository.AddAsync(categoria);
             return categoria;
         }

@@ -6,7 +6,7 @@ namespace fin_api.Services
     {
         Task<IEnumerable<Categoria>> ListCategoriasAsync(string userId);
         Task<Categoria> GetCategoriaAsync(string id);
-        Task<Categoria> CreateCategoriaAsync(Categoria categoria);
+        Task<Categoria> CreateCategoriaAsync(string userId, Categoria categoria);
         Task<Categoria> UpdateCategoriaAsync(Categoria categoria);
         Task<bool> DeleteCategoriaAsync(string id, Categoria categoria);
     }

@@ -1,20 +1,22 @@
-﻿using fin_api.Models;
+﻿using fin_api.Extensions;
+using fin_api.Models;
+using fin_api.Notificacoes;
 using fin_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-
 namespace fin_api.Controllers
 {
     [ApiController]
     [Route("api/transacoes")]
     [Authorize]
-    public class TransacoesController : ControllerBase
+    public class TransacoesController : MainController
     {
         private readonly ITransacaoService _transacaoService;
 
-        public TransacoesController(ITransacaoService service)
+        public TransacoesController(
+            ITransacaoService service, 
+            IUser appUser, 
+            INotificador notificador) : base (notificador, appUser)
         {
             _transacaoService = service;
         }
@@ -22,11 +24,11 @@ namespace fin_api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Transacao>>> GetTransacoes()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("Usuário não autenticado.");
 
-            var transacoes = await _transacaoService.ListTransactionsAsync(userId);
+            if (!UsuarioAutenticado)
+                return Unauthorized("Usuário não autenticado");
+
+            var transacoes = await _transacaoService.ListTransactionsAsync(UsuarioId);
             return Ok(transacoes);
         }
 
@@ -35,9 +37,8 @@ namespace fin_api.Controllers
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("Usuário não autenticado.");
+            if (!UsuarioAutenticado)
+                return Unauthorized("Usuário não autenticado");
 
             var startLocal = startDate.Date;
             var endLocal = endDate.Date.AddDays(1).AddTicks(-1);
@@ -46,7 +47,7 @@ namespace fin_api.Controllers
             var fimUtc = TimeZoneInfo.ConvertTimeToUtc(endLocal);
 
             var transacoes = await _transacaoService.ListTransactionsByPeriodAsync(
-                userId,
+                UsuarioId,
                 inicioUtc,
                 fimUtc
             );
@@ -60,13 +61,12 @@ namespace fin_api.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("Usuário não autenticado.");
+            if (!UsuarioAutenticado)
+                return Unauthorized("Usuário não autenticado");
 
             transacao.DataMovimentacao = 
                 DateTime.SpecifyKind(transacao.DataMovimentacao, DateTimeKind.Utc);
-            transacao.UserId = userId;
+            transacao.UserId = UsuarioId;
             var result = await _transacaoService.CreateTransactionAsync(transacao);
 
             if (result == null)
@@ -78,12 +78,11 @@ namespace fin_api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("Usuário não autenticado.");
+            if (!UsuarioAutenticado)
+                return Unauthorized("Usuário não autenticado");
 
             var transacao = await _transacaoService.GetTransactionAsync(id);
-            if (transacao.Id == null || transacao.UserId != userId)
+            if (transacao.Id == null || transacao.UserId != UsuarioId)
                 return NotFound("Transação não encontrada.");
 
             var success = await _transacaoService.DeleteTransactionAsync(id);
@@ -95,12 +94,11 @@ namespace fin_api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Transacao>> GetById(string id)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "Usuário não autenticado" });
+            if (!UsuarioAutenticado)
+                return Unauthorized("Usuário não autenticado");
 
             var transacao = await _transacaoService.GetTransactionAsync(id);
-            if (transacao.UserId != userId)
+            if (transacao.UserId != UsuarioId)
                 return Unauthorized(new { message = "Você não tem permissão para excluir essa tarefa" });
 
             if (transacao == null)
@@ -117,15 +115,14 @@ namespace fin_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("Usuário não autenticado.");
+            if (!UsuarioAutenticado)
+                return Unauthorized("Usuário não autenticado");
 
             var existing = await _transacaoService.GetTransactionAsync(id);
             if (existing == null)
                 return NotFound(new { message = "Transação não encontrada." });
 
-            if (existing.UserId != userId)
+            if (existing.UserId != UsuarioId)
                 return Unauthorized(new { message = "Você não tem permissão para atualizar essa transação." });
 
             transacao.Id = existing.Id;
