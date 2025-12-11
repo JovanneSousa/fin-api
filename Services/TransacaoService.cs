@@ -1,5 +1,6 @@
 ﻿using fin_api.Enums;
 using fin_api.Models;
+using fin_api.Notificacoes;
 using fin_api.Repositories;
 
 namespace fin_api.Services
@@ -7,10 +8,12 @@ namespace fin_api.Services
     public class TransactionService : ITransacaoService
     {
         private readonly ITransacaoRepository _repository;
+        private readonly INotificador _notificador;
 
-        public TransactionService(ITransacaoRepository repository)
+        public TransactionService(ITransacaoRepository repository, INotificador notificador)
         {
             _repository = repository;
+            _notificador = notificador;
         }
 
         public async Task<IEnumerable<Transacao>> ListTransactionsAsync(string userId)
@@ -125,7 +128,25 @@ namespace fin_api.Services
 
         public async Task<IEnumerable<Transacao>> ListTransactionsByPeriodAsync(string userId, DateTime startDate, DateTime endDate)
         {
-            return await _repository.GetByPeriodAsync(userId, startDate, endDate);
+
+            if(startDate > endDate)
+            {
+                _notificador.Handle(new Notificacao("A data de fim deve ser maior que a data de início!"));
+            }
+
+            var startLocal = startDate.Date;
+            var endLocal = endDate.Date.AddDays(1).AddTicks(-1);
+
+            var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(startLocal);
+            var fimUtc = TimeZoneInfo.ConvertTimeToUtc(endLocal);
+
+            var result = await _repository.GetByPeriodAsync(userId, startDate, endDate);
+            if(result == null)
+            {
+                _notificador.Handle(new Notificacao("Houve um problema ao buscar as transações!"));
+                return null;
+            }
+            return result;
         }
 
         private async Task GerarRecorrencias(Transacao origem)

@@ -22,48 +22,27 @@ namespace fin_api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Transacao>>> GetTransacoes()
-        {
-
-            if (!UsuarioAutenticado)
-                return Unauthorized("Usuário não autenticado");
-
-            var transacoes = await _transacaoService.ListTransactionsAsync(UsuarioId);
-            return Ok(transacoes);
-        }
+        public async Task<ActionResult<IEnumerable<Transacao>>> GetTransacoes() =>
+            CustomResponse(await _transacaoService.ListTransactionsAsync(UsuarioId));
 
         [HttpGet("periodo")]
         public async Task<ActionResult<IEnumerable<Transacao>>> FiltrarTransacoes(
             [FromQuery] DateTime startDate,
             [FromQuery] DateTime endDate)
         {
-            if (!UsuarioAutenticado)
-                return Unauthorized("Usuário não autenticado");
-
-            var startLocal = startDate.Date;
-            var endLocal = endDate.Date.AddDays(1).AddTicks(-1);
-
-            var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(startLocal);
-            var fimUtc = TimeZoneInfo.ConvertTimeToUtc(endLocal);
-
             var transacoes = await _transacaoService.ListTransactionsByPeriodAsync(
                 UsuarioId,
-                inicioUtc,
-                fimUtc
+                startDate,
+                endDate
             );
-            if (transacoes == null) return BadRequest(new { message = "Falha ao buscar os dados" });
+            if (transacoes == null) return CustomResponse();
 
-            return Ok(transacoes);
+            return CustomResponse(transacoes);
         }
 
         [HttpPost("novo")]
         public async Task<IActionResult> Post([FromBody] Transacao transacao)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            if (!UsuarioAutenticado)
-                return Unauthorized("Usuário não autenticado");
-
             transacao.DataMovimentacao = 
                 DateTime.SpecifyKind(transacao.DataMovimentacao, DateTimeKind.Utc);
             transacao.UserId = UsuarioId;
@@ -78,9 +57,6 @@ namespace fin_api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            if (!UsuarioAutenticado)
-                return Unauthorized("Usuário não autenticado");
-
             var transacao = await _transacaoService.GetTransactionAsync(id);
             if (transacao.Id == null || transacao.UserId != UsuarioId)
                 return NotFound("Transação não encontrada.");
