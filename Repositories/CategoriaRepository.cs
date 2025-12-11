@@ -21,10 +21,11 @@ namespace fin_api.Repositories
         public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
             => await _context.Categories.Where(c => c.UserId == userId || c.IsDefault).ToListAsync();
 
-        public async Task AddAsync(Categoria categoria)
+        public async Task<bool> AddAsync( Categoria categoria)
         {
             _context.Categories.Add(categoria);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task UpdateAsync(Categoria categoria)
@@ -33,10 +34,11 @@ namespace fin_api.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Categoria categoria)
+        public async Task<bool> DeleteAsync(Categoria categoria)
         {
                 _context.Categories.Remove(categoria);
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> ExistsAsync(string userId, string name)
