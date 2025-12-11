@@ -56,16 +56,17 @@ namespace fin_api.Repositories
                 .AnyAsync(uhc => uhc.UserId == userId && uhc.CategoryId == category.Id);
         }
 
-        public async Task HiddenCategory(string userId, string categoriaId)
+        public async Task<bool> HiddenCategory(string userId, string categoriaId)
         {
             var hiddenCategory = new UserHiddenCategory { UserId = userId, CategoryId = categoriaId };
             await _context.UserHiddenCategories.AddAsync(hiddenCategory);
             await _context.SaveChangesAsync();
+            return true;
         }
-        public async Task ShowHiddenCategory(Categoria categoria)
+        public async Task ShowHiddenCategory(string userId, Categoria categoria)
         {
             var hiddenCategory = await _context.UserHiddenCategories
-                .FirstOrDefaultAsync(uhc => uhc.UserId == categoria.UserId && uhc.CategoryId == categoria.Id);
+                .FirstOrDefaultAsync(uhc => uhc.UserId == userId && uhc.CategoryId == categoria.Id);
             if (hiddenCategory != null)
             {
                 _context.UserHiddenCategories.Remove(hiddenCategory);
@@ -76,12 +77,13 @@ namespace fin_api.Repositories
         public async Task<List<Categoria>> ListCategoriesHiddenAsync(string userId)
         {
             var result = await _context.Categories
-                .Where(c => c.UserId == userId)
-                .Where(c => !_context.UserHiddenCategories
+                .Where(c => c.IsDefault == true)
+                .Where(c => _context.UserHiddenCategories
                     .Where(h => h.UserId == userId)
                     .Select(h => h.CategoryId)
                     .Contains(c.Id))
                 .ToListAsync();
+
 
             return result;
         }

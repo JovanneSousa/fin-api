@@ -41,8 +41,6 @@ namespace fin_api.Controllers
         [HttpPost]
         public async Task<IActionResult> Cadastrar([FromBody]Categoria categoria)
         {
-
-
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Usuário não autenticado.");

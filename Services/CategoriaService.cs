@@ -37,7 +37,7 @@ namespace fin_api.Services
                 var toUnhide = category.FirstOrDefault(c => c.Name.ToLower() == categoria.Name.ToLower() && c.IsDefault);
                 if (toUnhide != null)
                 {
-                    await _repository.ShowHiddenCategory(toUnhide);
+                    await _repository.ShowHiddenCategory(categoria.UserId, toUnhide);
                     return toUnhide;
                 }
 
@@ -55,12 +55,14 @@ namespace fin_api.Services
 
         public async Task<bool> DeleteCategoriaAsync(string userId, Categoria categoria)
         {
-            if (categoria != null && categoria.IsDefault) await _repository.HiddenCategory(userId, categoria.Id);
+            if (categoria != null && categoria.IsDefault)
+                return await _repository.HiddenCategory(userId, categoria.Id);
             if (categoria != null && !categoria.IsDefault)
             { 
                 await _repository.DeleteAsync(categoria);
                 return true;
             }
+
             return false;
         }
 
