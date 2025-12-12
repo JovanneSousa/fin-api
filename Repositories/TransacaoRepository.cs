@@ -22,26 +22,25 @@ namespace fin_api.Repositories
                                           .Where(t => t.UserId == userId)
                                           .ToListAsync();
 
-        public async Task AddAsync(Transacao transaction)
+        public async Task<bool> AddAsync(Transacao transaction)
         {
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task UpdateAsync(Transacao transaction)
+        public async Task<bool> UpdateAsync(Transacao transaction)
         {
             _context.Transactions.Update(transaction);
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task<bool> DeleteAsync(Transacao transacao)
         {
-            var transaction = await GetByIdAsync(id);
-            if (transaction != null)
-            {
-                _context.Transactions.Remove(transaction);
-                await _context.SaveChangesAsync();
-            }
+            _context.Transactions.Remove(transacao);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate)
@@ -55,25 +54,28 @@ namespace fin_api.Repositories
                 .ToListAsync();
         }
 
-        public async Task UpdateRangeAsync(List<Transacao> transactions)
+        public async Task<bool> UpdateRangeAsync(List<Transacao> transactions)
         {
             _context.UpdateRange(transactions);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<List<Transacao>> GetByParentTransactionId(string parentTrancationId) =>
             await _context.Transactions.Where(t => t.ParentTransactionId == parentTrancationId).ToListAsync();
 
-        public async Task RemoveRangeAsync(List<Transacao> transacao)
+        public async Task<bool> RemoveRangeAsync(List<Transacao> transacao)
         {
             _context.Transactions.RemoveRange(transacao);
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task AddRangeAsync(List<Transacao> transactions)
+        public async Task<bool> AddRangeAsync(List<Transacao> transactions)
         {
             await _context.AddRangeAsync(transactions);
             await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

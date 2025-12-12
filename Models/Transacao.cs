@@ -23,5 +23,7 @@ namespace fin_api.Models
         public int? ParcelaAtual { get; set; }
         public string? ParentTransactionId { get; set; }
         public Transacao ParentTransaction { get; set; }
+        public bool ParcelaValida(int parcelas)
+            => parcelas >= 2;
     }
 }

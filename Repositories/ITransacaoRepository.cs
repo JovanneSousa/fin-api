@@ -9,10 +9,10 @@ namespace fin_api.Repositories
         public Task<List<Transacao>> GetByParentTransactionId(string parentTrancationId);
         public Task<IEnumerable<Transacao>> GetAllAsync(string userId);
         Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate);
-        public Task AddAsync(Transacao transaction);
-        public Task AddRangeAsync(List<Transacao> transactions);
-        public Task UpdateAsync(Transacao transaction);
-        public Task DeleteAsync(string id);
-        public Task RemoveRangeAsync(List<Transacao> transacao);
+        public Task<bool> AddAsync(Transacao transaction);
+        public Task<bool> AddRangeAsync(List<Transacao> transactions);
+        public Task<bool> UpdateAsync(Transacao transaction);
+        public Task<bool> DeleteAsync(Transacao transacao);
+        public Task<bool> RemoveRangeAsync(List<Transacao> transacao);
     }
 }

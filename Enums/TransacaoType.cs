@@ -2,7 +2,7 @@
 {
     public enum TransacaoType
     {
-        Despesa,
-        Renda
+        Renda,
+        Despesa
     }
 }

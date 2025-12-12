@@ -24,9 +24,8 @@ namespace fin_api.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategorias() =>
-            CustomResponse(await _categoriaService.ListCategoriasAsync(UsuarioId));
-
+        public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategorias() 
+            => CustomResponse(await _categoriaService.ListCategoriasAsync(UsuarioId));
 
         [HttpPost]
         public async Task<IActionResult> Cadastrar([FromBody] Categoria categoria)
@@ -34,10 +33,6 @@ namespace fin_api.Controllers
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Deletar(string id)
-        {
-            if (!await _categoriaService.DeleteCategoriaAsync(UsuarioId, id))
-                return CustomResponse();
-            return CustomResponse("Categoria deletada com sucesso!");
-        }
+            => CustomResponse(!await _categoriaService.DeleteCategoriaAsync(UsuarioId, id));
     }
 }
