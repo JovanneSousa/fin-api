@@ -22,16 +22,18 @@ namespace fin_api.Controllers
             _categoriaService = service;
         }
 
-
         [HttpGet]
+        [ClaimsAuthorize("permission", "FINANCEIRO:CATEGORIA_LISTAR")]
         public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategorias() 
             => CustomResponse(await _categoriaService.ListCategoriasAsync(UsuarioId));
 
         [HttpPost]
+        [ClaimsAuthorize("permission", "FINANCEIRO:CATEGORIA_CRIAR")]
         public async Task<IActionResult> Cadastrar([FromBody] Categoria categoria)
             => CustomResponse(await _categoriaService.CreateCategoriaAsync(UsuarioId, categoria));
 
         [HttpDelete("{id}")]
+        [ClaimsAuthorize("permission", "FINANCEIRO:CATEGORIA_EXCLUIR")]
         public async Task<IActionResult> Deletar(string id)
             => CustomResponse(!await _categoriaService.DeleteCategoriaAsync(UsuarioId, id));
     }
