@@ -26,7 +26,7 @@ namespace fin_api.Controllers
             CustomResponse(await _transacaoService.ListTransactionsAsync(UsuarioId));
 
         [HttpGet("periodo")]
-        [ClaimsAuthorize("permission", "FINANCEIRO:TRANSACAO_LISTAR")]
+        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
         public async Task<ActionResult<IEnumerable<Transacao>>> FiltrarTransacoes(
             [FromQuery] DateTime? startDate,
             [FromQuery] DateTime? endDate)
@@ -37,22 +37,22 @@ namespace fin_api.Controllers
             ));
 
         [HttpPost("novo")]
-        [ClaimsAuthorize("permission", "FINANCEIRO:TRANSACAO_CRIAR")]
+        [ClaimsAuthorize("permission", "FIN:TRN_CRIAR")]
         public async Task<IActionResult> Post([FromBody] Transacao transacao)
             => CustomResponse(await _transacaoService.CreateTransactionAsync(transacao, UsuarioId));
 
         [HttpDelete("{id}")]
-        [ClaimsAuthorize("permission", "FINANCEIRO:TRANSACAO_EXCLUIR")]
+        [ClaimsAuthorize("permission", "FIN:TRN_EXCLUIR")]
         public async Task<IActionResult> Delete(string id) =>
             CustomResponse(await _transacaoService.DeleteTransactionAsync(id, UsuarioId));
 
         [HttpGet("{id}")]
-        [ClaimsAuthorize("permission", "FINANCEIRO:TRANSACAO_LISTAR")]
+        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
         public async Task<ActionResult<Transacao>> GetById(string id) =>
             CustomResponse(await _transacaoService.GetTransactionAsync(id, UsuarioId));
 
         [HttpPut("{id}")]
-        [ClaimsAuthorize("permission", "FINANCEIRO:TRANSACAO_EDITAR")]
+        [ClaimsAuthorize("permission", "FIN:TRN_EDITAR")]
         public async Task<ActionResult<Transacao>> Update(string id, [FromBody] Transacao transacao)
             => CustomResponse(await _transacaoService.UpdateTransactionAsync(id, transacao, UsuarioId));
     }
