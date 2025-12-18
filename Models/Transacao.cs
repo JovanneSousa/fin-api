@@ -7,7 +7,6 @@ namespace fin_api.Models
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string UserId { get; set; }
-        public IdentityUser User { get; set; }
         public TransacaoType Type { get; set; }
         public string Titulo { get; set; }
         public decimal Valor { get; set; }

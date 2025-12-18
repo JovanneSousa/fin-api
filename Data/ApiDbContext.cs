@@ -1,5 +1,4 @@
 ﻿using fin_api.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace fin_api.Data
