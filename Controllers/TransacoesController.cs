@@ -22,6 +22,10 @@ namespace fin_api.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult<decimal>> GetSaldoAtual() =>
+            CustomResponse(await _transacaoService.GetSaldoTotalAsync(UsuarioId));
+
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Transacao>>> GetTransacoes() =>
             CustomResponse(await _transacaoService.ListTransactionsAsync(UsuarioId));
 

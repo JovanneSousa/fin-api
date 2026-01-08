@@ -17,6 +17,14 @@ namespace fin_api.Services
             _notificador = notificador;
         }
 
+        public async Task<decimal> GetSaldoTotalAsync(string userId)
+        {
+            var totalReceita = await _repository.GetTotalReceitaAsync(userId);
+            var totalDespesa = await _repository.GetTotalDespesaAsync(userId);
+
+            return totalReceita - totalDespesa;
+        }
+
         public async Task<IEnumerable<Transacao>> ListTransactionsAsync(string userId)
             => await _repository.GetAllAsync(userId);
 

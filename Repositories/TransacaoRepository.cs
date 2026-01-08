@@ -29,6 +29,16 @@ namespace fin_api.Repositories
             return true;
         }
 
+        public async Task<decimal> GetTotalReceitaAsync(string userId)
+            => await _context.Transactions
+                .Where(t => t.UserId == userId && t.Type == TransacaoType.Renda)
+                .SumAsync(t => (int?)t.Valor) ?? 0;
+
+        public async Task<decimal> GetTotalDespesaAsync(string userId)
+            => await _context.Transactions
+                .Where(t => t.UserId == userId && t.Type == TransacaoType.Despesa)
+                .SumAsync(t => (int?)t.Valor) ?? 0;
+
         public async Task<bool> UpdateAsync(Transacao transaction)
         {
             _context.Transactions.Update(transaction);

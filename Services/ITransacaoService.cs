@@ -10,5 +10,6 @@ namespace fin_api.Services
         Task<Transacao> CreateTransactionAsync(Transacao transacao, string userId);
         Task<Transacao> UpdateTransactionAsync(string id, Transacao transacao, string userId);
         Task<bool> DeleteTransactionAsync(string id, string usuarioId);
+        Task<decimal> GetSaldoTotalAsync(string userId);
     }
 }
