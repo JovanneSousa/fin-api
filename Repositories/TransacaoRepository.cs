@@ -36,15 +36,15 @@ namespace fin_api.Repositories
                     t.UserId == userId && 
                     t.Type == TransacaoType.Renda &&
                     t.DataMovimentacao <= DateTime.UtcNow)
-                .SumAsync(t => (int?)t.Valor) ?? 0;
+                .SumAsync(t => (decimal?)t.Valor) ?? 0;
 
-        public async Task<decimal> GetTotalDespesaAsync(string userId)
+        public async Task<decimal> GetTotalDespesaAsync(string userId, DateTime dataLimiteUtc)
             => await _context.Transactions
                 .Where(t =>
                     t.UserId == userId &&
                     t.Type == TransacaoType.Despesa &&
-                    t.DataMovimentacao <= DateTime.UtcNow)
-                .SumAsync(t => (int?)t.Valor) ?? 0;
+                    t.DataMovimentacao < dataLimiteUtc)
+                .SumAsync(t => (decimal?)t.Valor) ?? 0;
 
         public async Task<bool> UpdateAsync(Transacao transaction)
         {
