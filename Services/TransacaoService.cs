@@ -19,8 +19,16 @@ namespace fin_api.Services
 
         public async Task<decimal> GetSaldoTotalAsync(string userId)
         {
+            var now = DateTime.UtcNow;
+
+            var inicioProximoMes = new DateTime(
+                now.Year,
+                now.Month,
+                1
+            ).AddMonths(1).ToUniversalTime();
+
             var totalReceita = await _repository.GetTotalReceitaAsync(userId);
-            var totalDespesa = await _repository.GetTotalDespesaAsync(userId);
+            var totalDespesa = await _repository.GetTotalDespesaAsync(userId, inicioProximoMes);
 
             return totalReceita - totalDespesa;
         }

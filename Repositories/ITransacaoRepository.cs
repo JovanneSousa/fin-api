@@ -15,6 +15,6 @@ namespace fin_api.Repositories
         public Task<bool> DeleteAsync(Transacao transacao);
         public Task<bool> RemoveRangeAsync(List<Transacao> transacao);
         Task<decimal> GetTotalReceitaAsync(string userId);
-        Task<decimal> GetTotalDespesaAsync(string userId);
+        Task<decimal> GetTotalDespesaAsync(string userId, DateTime dataLimiteUtc);
     }
 }
