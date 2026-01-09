@@ -1,5 +1,6 @@
 ﻿using fin_api.Data;
 using fin_api.Models;
+using fin_api.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace fin_api.Repositories
@@ -31,12 +32,18 @@ namespace fin_api.Repositories
 
         public async Task<decimal> GetTotalReceitaAsync(string userId)
             => await _context.Transactions
-                .Where(t => t.UserId == userId && t.Type == TransacaoType.Renda)
+                .Where(t => 
+                    t.UserId == userId && 
+                    t.Type == TransacaoType.Renda &&
+                    t.DataMovimentacao <= DateTime.UtcNow)
                 .SumAsync(t => (int?)t.Valor) ?? 0;
 
         public async Task<decimal> GetTotalDespesaAsync(string userId)
             => await _context.Transactions
-                .Where(t => t.UserId == userId && t.Type == TransacaoType.Despesa)
+                .Where(t =>
+                    t.UserId == userId &&
+                    t.Type == TransacaoType.Despesa &&
+                    t.DataMovimentacao <= DateTime.UtcNow)
                 .SumAsync(t => (int?)t.Valor) ?? 0;
 
         public async Task<bool> UpdateAsync(Transacao transaction)

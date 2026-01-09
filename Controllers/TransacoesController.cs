@@ -21,7 +21,8 @@ namespace fin_api.Controllers
             _transacaoService = service;
         }
 
-        [HttpGet]
+        [HttpGet("saldo")]
+        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
         public async Task<ActionResult<decimal>> GetSaldoAtual() =>
             CustomResponse(await _transacaoService.GetSaldoTotalAsync(UsuarioId));
 
