@@ -9,7 +9,12 @@ namespace fin_api.Configuration
         {
             builder.Services.AddDbContext<ApiDbContext>(o =>
             {
-                var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+                var connectionString =
+                    builder.Configuration.GetConnectionString("DefaultConnection");
+
+                if (string.IsNullOrWhiteSpace(connectionString))
+                    throw new InvalidOperationException("Connection string não configurada.");
+
                 o.UseNpgsql(connectionString);
             });
 
