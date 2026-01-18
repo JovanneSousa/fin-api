@@ -1,4 +1,5 @@
 using fin_api.Configuration;
+using fin_api.Configuration.Mapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,11 @@ builder
     .AddSwaggerConfig()
     .AddDbContextConfig()
     .AddCorsConfig()
-    .AddIdentityConfig();
+    .AddIdentityConfig()
+    .Services.AddAutoMapper(cfg =>
+    {
+        cfg.AddMaps(typeof(Program).Assembly);
+    });
 
 var app = builder.Build();
 

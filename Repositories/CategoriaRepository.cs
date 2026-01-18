@@ -19,7 +19,10 @@ namespace fin_api.Repositories
             => await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
         public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
-            => await _context.Categories.Where(c => c.UserId == userId || c.IsDefault).ToListAsync();
+            => await _context.Categories
+                        .Where(c => c.UserId == userId || c.IsDefault)
+                        .Include(c => c.DefaultIcon)
+                        .ToListAsync();
 
         public async Task<bool> AddAsync( Categoria categoria)
         {

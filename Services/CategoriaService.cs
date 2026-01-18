@@ -1,4 +1,6 @@
-﻿using fin_api.Models;
+﻿using AutoMapper;
+using fin_api.DTOs;
+using fin_api.Models;
 using fin_api.Notificacoes;
 using fin_api.Repositories;
 
@@ -10,24 +12,27 @@ namespace fin_api.Services
         private readonly ICategoriaRepository _repository;
         private readonly INotificador _notificador;
         private readonly ITransacaoRepository _transacaoRepository;
+        private readonly IMapper _mapper;
 
         public CategoriaService(
             ICategoriaRepository repository,
             ITransacaoRepository transacaoRepository, 
             INotificador notificador, 
-            ITransacaoService transacaoService)
+            ITransacaoService transacaoService,
+            IMapper mapper)
         {
             _repository = repository;
             _notificador = notificador;
             _transacaoRepository = transacaoRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Categoria>> ListCategoriasAsync(string userId)
+        public async Task<IEnumerable<CategoriaDTO>> ListCategoriasAsync(string userId)
         { 
             var categories = await _repository.GetAllAsync(userId);
             var hiddenCategoriesId = await _repository.ListCategoriesHiddenAsync(userId);
 
-            var result = categories.Where(c => !hiddenCategoriesId.Contains(c));
+            var result = _mapper.Map<IEnumerable<CategoriaDTO>>(categories.Where(c => !hiddenCategoriesId.Contains(c)));
             if (!result.Any())
             {
                 _notificador.Handle(new Notificacao("Ocorreu um erro ao listar as categorias"));
