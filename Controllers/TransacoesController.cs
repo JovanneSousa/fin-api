@@ -1,4 +1,5 @@
-﻿using fin_api.Extensions;
+﻿using fin_api.DTOs;
+using fin_api.Extensions;
 using fin_api.Models;
 using fin_api.Notificacoes;
 using fin_api.Services;
@@ -27,12 +28,12 @@ namespace fin_api.Controllers
             CustomResponse(await _transacaoService.GetSaldoTotalAsync(UsuarioId));
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Transacao>>> GetTransacoes() =>
+        public async Task<ActionResult<IEnumerable<TransacaoDTO>>> GetTransacoes() =>
             CustomResponse(await _transacaoService.ListTransactionsAsync(UsuarioId));
 
         [HttpGet("periodo")]
         [ClaimsAuthorize("permission", "FIN:TRN_LER")]
-        public async Task<ActionResult<IEnumerable<Transacao>>> FiltrarTransacoes(
+        public async Task<ActionResult<IEnumerable<TransacaoDTO>>> FiltrarTransacoes(
             [FromQuery] DateTime? startDate,
             [FromQuery] DateTime? endDate)
             => CustomResponse(await _transacaoService.ListTransactionsByPeriodAsync(

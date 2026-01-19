@@ -1,4 +1,5 @@
-﻿using fin_api.Extensions;
+﻿using fin_api.DTOs;
+using fin_api.Extensions;
 using fin_api.Models;
 using fin_api.Notificacoes;
 using fin_api.Services;
@@ -24,7 +25,7 @@ namespace fin_api.Controllers
 
         [HttpGet]
         [ClaimsAuthorize("permission", "FIN:CTG_LER")]
-        public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategorias() 
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> ListarCategorias() 
             => CustomResponse(await _categoriaService.ListCategoriasAsync(UsuarioId));
 
         [HttpPost]
