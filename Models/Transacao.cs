@@ -1,5 +1,6 @@
 ﻿using fin_api.Enums;
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace fin_api.Models
 {

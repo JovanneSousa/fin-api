@@ -6,10 +6,11 @@ namespace fin_api.DTOs
 {
     public class CategoriaDTO
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public TransacaoType Type { get; set; }
         public string UserId { get; set; }
         public bool IsDefault { get; set; }
-        public IconDTO DefaultIcon { get; set; }
+        public IconDTO Icone { get; set; }
     }
 }

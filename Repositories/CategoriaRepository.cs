@@ -15,13 +15,22 @@ namespace fin_api.Repositories
             _context = context;
         }
 
+        public async Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id)
+            => await _context.CategoriaUsuarios
+                .Where(c => c.UserId == id)
+                .ToListAsync();
+
+
         public async Task<Categoria> GetByIdAsync(string id)
             => await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
         public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
             => await _context.Categories
                         .Where(c => c.UserId == userId || c.IsDefault)
-                        .Include(c => c.DefaultIcon)
+                        .Include(c => c.Icone)
+                        .Include(c => c.IconeCategoriaUsuario
+                            .Where(c => c.UserId == userId))
+                            .ThenInclude(c => c.Icone)
                         .ToListAsync();
 
         public async Task<bool> AddAsync( Categoria categoria)

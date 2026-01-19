@@ -31,8 +31,15 @@ namespace fin_api.Services
         { 
             var categories = await _repository.GetAllAsync(userId);
             var hiddenCategoriesId = await _repository.ListCategoriesHiddenAsync(userId);
+            var visibleCategories = categories.Where(c => !hiddenCategoriesId.Contains(c));
 
-            var result = _mapper.Map<IEnumerable<CategoriaDTO>>(categories.Where(c => !hiddenCategoriesId.Contains(c)));
+            foreach (var category in visibleCategories) 
+            {
+                var usuarioCategoria = category.IconeCategoriaUsuario.FirstOrDefault();
+                if (usuarioCategoria != null) category.Icone = usuarioCategoria.Icone;
+            }
+
+            var result = _mapper.Map<IEnumerable<CategoriaDTO>>(visibleCategories);
             if (!result.Any())
             {
                 _notificador.Handle(new Notificacao("Ocorreu um erro ao listar as categorias"));
@@ -42,8 +49,8 @@ namespace fin_api.Services
             return result;
         }
 
-        public async Task<Categoria> GetCategoriaAsync(string id)
-            => await _repository.GetByIdAsync(id);
+        public async Task<CategoriaDTO> GetCategoriaAsync(string id) 
+            => _mapper.Map<CategoriaDTO>(await _repository.GetByIdAsync(id));
 
         public async Task<Categoria> CreateCategoriaAsync(string userId, Categoria categoria)
         {

@@ -14,6 +14,8 @@ namespace fin_api.Data
         public DbSet<UserHiddenCategory> UserHiddenCategories { get; set; }
         public DbSet<Icon> Icon { get; set; }
 
+        public DbSet<IconeCategoriaUsuario> CategoriaUsuarios { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -34,10 +36,11 @@ namespace fin_api.Data
             {
                 entity.HasKey(c => c.Id);
 
-                entity.HasOne(c => c.DefaultIcon)
+                entity.HasOne(c => c.Icone)
                     .WithMany(i => i.Categorias)
-                    .HasForeignKey(c => c.DefaultIconId)
+                    .HasForeignKey(c => c.IconId)
                     .OnDelete(DeleteBehavior.Restrict);
+                    
             });
 
             builder.Entity<Icon>()
@@ -46,15 +49,16 @@ namespace fin_api.Data
             builder.Entity<Usuario>()
                 .HasKey(u => u.Id);
 
-            builder.Entity<CategoriaUsuario>(entity =>
+            builder.Entity<IconeCategoriaUsuario>(entity =>
             {
                 entity.HasKey(cu => new { cu.UserId, cu.CategoriaId });
+
                 entity.HasOne(c => c.Categoria)
-                    .WithMany()
+                    .WithMany(c => c.IconeCategoriaUsuario)
                     .HasForeignKey(c => c.CategoriaId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(i => i.Icon)
+                entity.HasOne(i => i.Icone)
                     .WithMany()
                     .HasForeignKey(i => i.IconId)
                     .OnDelete(DeleteBehavior.SetNull);

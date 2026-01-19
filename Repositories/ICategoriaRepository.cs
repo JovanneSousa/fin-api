@@ -4,7 +4,7 @@ namespace fin_api.Repositories
 {
     public interface ICategoriaRepository
     {
-
+        Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id);
         Task<Categoria> GetByIdAsync(string id);
         Task<IEnumerable<Categoria>> GetAllAsync(string userId);
         Task<bool> AddAsync(Categoria categoria);
