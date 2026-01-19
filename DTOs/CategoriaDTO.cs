@@ -4,9 +4,8 @@ using System.Text.Json.Serialization;
 
 namespace fin_api.DTOs
 {
-    public class CategoriaDTO
+    public class CategoriaDTO : Entity
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
         public TransacaoType Type { get; set; }
         public string UserId { get; set; }

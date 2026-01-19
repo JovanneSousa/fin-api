@@ -63,10 +63,15 @@ namespace fin_api.Repositories
         public async Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate)
         {
             return await _context.Transactions
-                .Include(t => t.Categoria)
                 .Where(t => t.UserId == userId &&
                             t.DataMovimentacao >= startDate &&
                             t.DataMovimentacao <= endDate)
+                .Include(t => t.Categoria)
+                    .ThenInclude(c => c.Icone)
+                .Include(t => t.Categoria)
+                    .ThenInclude(c => c.IconeCategoriaUsuario
+                        .Where(c => c.UserId == userId))
+                        .ThenInclude(c => c.Icone)
                 .OrderByDescending(t => t.DataMovimentacao)
                 .ToListAsync();
         }

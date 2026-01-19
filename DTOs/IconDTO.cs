@@ -1,8 +1,9 @@
-﻿namespace fin_api.DTOs
+﻿using fin_api.Models;
+
+namespace fin_api.DTOs
 {
-    public class IconDTO
+    public class IconDTO : Entity
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
     }

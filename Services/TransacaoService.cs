@@ -1,4 +1,6 @@
-﻿using fin_api.Enums;
+﻿using AutoMapper;
+using fin_api.DTOs;
+using fin_api.Enums;
 using fin_api.Models;
 using fin_api.Notificacoes;
 using fin_api.Repositories;
@@ -10,11 +12,13 @@ namespace fin_api.Services
     {
         private readonly ITransacaoRepository _repository;
         private readonly INotificador _notificador;
+        private readonly IMapper _mapper;
 
-        public TransactionService(ITransacaoRepository repository, INotificador notificador)
+        public TransactionService(ITransacaoRepository repository, INotificador notificador, IMapper mapper)
         {
             _repository = repository;
             _notificador = notificador;
+            _mapper = mapper;
         }
 
         public async Task<decimal> GetSaldoTotalAsync(string userId)
@@ -33,8 +37,8 @@ namespace fin_api.Services
             return totalReceita - totalDespesa;
         }
 
-        public async Task<IEnumerable<Transacao>> ListTransactionsAsync(string userId)
-            => await _repository.GetAllAsync(userId);
+        public async Task<IEnumerable<TransacaoDTO>> ListTransactionsAsync(string userId)
+            => _mapper.Map<IEnumerable<TransacaoDTO>>(await _repository.GetAllAsync(userId));
 
         public async Task<Transacao> GetTransactionAsync(string id, string userId)
         {
@@ -192,7 +196,7 @@ namespace fin_api.Services
             return true;
         }
 
-        public async Task<IEnumerable<Transacao>> ListTransactionsByPeriodAsync(string userId, DateTime? startDate, DateTime? endDate)
+        public async Task<IEnumerable<TransacaoDTO>> ListTransactionsByPeriodAsync(string userId, DateTime? startDate, DateTime? endDate)
         {
             if(startDate is null || endDate is null)
             {
@@ -211,8 +215,9 @@ namespace fin_api.Services
 
             var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(start.Date);
             var fimUtc = TimeZoneInfo.ConvertTimeToUtc(end.Date.AddDays(1).AddTicks(-1));
+            var transacoes = await _repository.GetByPeriodAsync(userId, inicioUtc, fimUtc);
 
-            var result = await _repository.GetByPeriodAsync(userId, inicioUtc, fimUtc);
+            var result = _mapper.Map<IEnumerable<TransacaoDTO>>(transacoes);
             if(result is null)
             {
                 _notificador.Handle(new Notificacao("Houve um problema ao buscar as transações!"));
