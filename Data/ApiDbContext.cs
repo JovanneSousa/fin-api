@@ -12,18 +12,62 @@ namespace fin_api.Data
         public DbSet<Transacao> Transactions { get; set; }
         public DbSet<Categoria> Categories { get; set; }
         public DbSet<UserHiddenCategory> UserHiddenCategories { get; set; }
+        public DbSet<Icon> Icon { get; set; }
+
+        public DbSet<IconeCategoriaUsuario> CategoriaUsuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<UserHiddenCategory>()
-                .HasKey(uhc => new { uhc.UserId, uhc.CategoryId });
+            builder.Entity<UserHiddenCategory>(entity =>
+            {
+                entity.HasKey(uhc => new { uhc.UserId, uhc.CategoryId });
+                entity.HasOne(uhc => uhc.Usuario)
+                .WithMany()
+                .HasForeignKey(uhc => uhc.UserId);
 
-            builder.Entity<UserHiddenCategory>()
-                .HasOne(uhc => uhc.Category)
+                entity.HasOne(uhc => uhc.Category)
                 .WithMany()
                 .HasForeignKey(uhc => uhc.CategoryId);
+            });
+
+            builder.Entity<Categoria>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+
+                entity.HasOne(c => c.Icone)
+                    .WithMany(i => i.Categorias)
+                    .HasForeignKey(c => c.IconId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                    
+            });
+
+            builder.Entity<Icon>()
+                .HasKey(i => i.Id);
+
+            builder.Entity<Usuario>()
+                .HasKey(u => u.Id);
+
+            builder.Entity<IconeCategoriaUsuario>(entity =>
+            {
+                entity.HasKey(cu => new { cu.UserId, cu.CategoriaId });
+
+                entity.HasOne(c => c.Categoria)
+                    .WithMany(c => c.IconeCategoriaUsuario)
+                    .HasForeignKey(c => c.CategoriaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(i => i.Icone)
+                    .WithMany()
+                    .HasForeignKey(i => i.IconId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(u => u.Usuario)
+                    .WithMany()
+                    .HasForeignKey(u => u.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
     }
