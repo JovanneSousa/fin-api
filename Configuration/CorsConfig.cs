@@ -4,10 +4,14 @@
     {
         public static WebApplicationBuilder AddCorsConfig(this WebApplicationBuilder builder)
         {
-            var allowedOrigin = builder.Configuration["MEU_APP"];
+            var allowedOrigin = builder.Configuration
+                .GetSection("MEU_APP")
+                .GetChildren()
+                .Select(x => x.Value)
+                .ToArray();
 
-            if (string.IsNullOrWhiteSpace(allowedOrigin))
-                throw new Exception("A variável de ambiente 'MEU_APP' não foi definida.");
+            if (allowedOrigin == null || allowedOrigin.Length == 0)
+                throw new InvalidOperationException("Nenhuma origem configurada em 'MEU_APP'");
 
             builder.Services.AddCors(o =>
             {
