@@ -125,5 +125,15 @@ namespace fin_api.Services
             return false;
         }
 
+        public async Task<IEnumerable<IconDTO>> ListarIconesAsync()
+        {
+            var icons = await _repository.GetAllIconsAsync();
+            if(!icons.Any())
+            {
+                _notificador.Handle(new Notificacao("Nenhum icone encontrado"));
+            }
+
+            return _mapper.Map<IEnumerable<IconDTO>>(icons);
+        }
     }
 }

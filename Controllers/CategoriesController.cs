@@ -28,6 +28,11 @@ namespace fin_api.Controllers
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> ListarCategorias() 
             => CustomResponse(await _categoriaService.ListCategoriasAsync(UsuarioId));
 
+        [HttpGet("icones")]
+        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        public async Task<ActionResult<IEnumerable<IconDTO>>> ListarIcones()
+            => CustomResponse(await _categoriaService.ListarIconesAsync());
+
         [HttpPost]
         [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
         public async Task<IActionResult> Cadastrar([FromBody] Categoria categoria)

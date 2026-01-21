@@ -101,5 +101,10 @@ namespace fin_api.Repositories
 
             return result;
         }
+
+        public async Task<List<Icon>> GetAllIconsAsync()
+            => await _context.Icon
+                .OrderBy(i => i.Name)
+                .ToListAsync();
     }
 }

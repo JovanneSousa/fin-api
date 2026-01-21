@@ -5,6 +5,7 @@ namespace fin_api.Services
 {
     public interface ICategoriaService
     {
+        Task<IEnumerable<IconDTO>> ListarIconesAsync();
         Task<IEnumerable<CategoriaDTO>> ListCategoriasAsync(string userId);
         Task<CategoriaDTO> GetCategoriaAsync(string id);
         Task<Categoria> CreateCategoriaAsync(string userId, Categoria categoria);
