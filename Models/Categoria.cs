@@ -16,5 +16,10 @@ namespace fin_api.Models
         public Icon Icone { get; set; }
         public ICollection<IconeCategoriaUsuario> IconeCategoriaUsuario { get; set; }
             = new List<IconeCategoriaUsuario>();
+
+        public string CorId { get; set; }
+        public Cor Cor { get; set; }
+        public ICollection<CorCategoriaUsuario> CorCategoriaUsuarios { get; set; } 
+            = new List<CorCategoriaUsuario>();
     }
 }

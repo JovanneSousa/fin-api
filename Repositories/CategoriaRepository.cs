@@ -31,6 +31,10 @@ namespace fin_api.Repositories
                         .Include(c => c.IconeCategoriaUsuario
                             .Where(c => c.UserId == userId))
                             .ThenInclude(c => c.Icone)
+                        .Include(c => c.Cor)
+                        .Include(c => c.CorCategoriaUsuarios
+                                    .Where(c => c.UserId == userId))
+                                    .ThenInclude(c => c.Cor)
                         .ToListAsync();
 
         public async Task<bool> AddAsync( Categoria categoria)
@@ -105,6 +109,10 @@ namespace fin_api.Repositories
         public async Task<List<Icon>> GetAllIconsAsync()
             => await _context.Icon
                 .OrderBy(i => i.Name)
+                .ToListAsync();
+
+        public async Task<List<Cor>> GetAllCorAsync()
+            => await _context.Cor
                 .ToListAsync();
     }
 }

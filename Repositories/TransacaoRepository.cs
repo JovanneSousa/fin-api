@@ -19,9 +19,10 @@ namespace fin_api.Repositories
             => await _context.Transactions.Include(t => t.Categoria).FirstOrDefaultAsync(t => t.Id == id);
 
         public async Task<IEnumerable<Transacao>> GetAllAsync(string userId)
-            => await _context.Transactions.Include(t => t.Categoria)
-                                          .Where(t => t.UserId == userId)
-                                          .ToListAsync();
+            => await _context.Transactions
+                    .Include(t => t.Categoria)
+                    .Where(t => t.UserId == userId)
+                    .ToListAsync();
 
         public async Task<bool> AddAsync(Transacao transaction)
         {
@@ -63,17 +64,24 @@ namespace fin_api.Repositories
         public async Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate)
         {
             return await _context.Transactions
-                .Where(t => t.UserId == userId &&
-                            t.DataMovimentacao >= startDate &&
-                            t.DataMovimentacao <= endDate)
-                .Include(t => t.Categoria)
-                    .ThenInclude(c => c.Icone)
-                .Include(t => t.Categoria)
-                    .ThenInclude(c => c.IconeCategoriaUsuario
+                .Where(t => t.UserId == userId 
+                            && t.DataMovimentacao >= startDate 
+                            && t.DataMovimentacao <= endDate)
+                    .AsNoTracking()
+                    .OrderByDescending(t => t.DataMovimentacao)
+                    .Include(t => t.Categoria)
+                        .ThenInclude(c => c.Icone)
+                    .Include(t => t.Categoria)
+                        .ThenInclude(c => c.IconeCategoriaUsuario
                         .Where(c => c.UserId == userId))
                         .ThenInclude(c => c.Icone)
-                .OrderByDescending(t => t.DataMovimentacao)
-                .ToListAsync();
+                    .Include(c => c.Categoria)
+                        .ThenInclude(c => c.Cor)
+                    .Include(t => t.Categoria)
+                        .ThenInclude(c => c.CorCategoriaUsuarios
+                        .Where(c => c.UserId == userId))
+                        .ThenInclude(c => c.Cor)
+                    .ToListAsync();
         }
 
         public async Task<bool> UpdateRangeAsync(List<Transacao> transactions)

@@ -11,5 +11,6 @@ namespace fin_api.DTOs
         public string UserId { get; set; }
         public bool IsDefault { get; set; }
         public IconDTO Icone { get; set; }
+        public CorDTO Cor { get; set; }
     }
 }

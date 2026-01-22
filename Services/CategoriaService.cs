@@ -131,9 +131,22 @@ namespace fin_api.Services
             if(!icons.Any())
             {
                 _notificador.Handle(new Notificacao("Nenhum icone encontrado"));
+                return null;
             }
 
             return _mapper.Map<IEnumerable<IconDTO>>(icons);
+        }
+
+        public async Task<IEnumerable<CorDTO>> ListarCoresAsync()
+        {
+            var cores = await _repository.GetAllCorAsync();
+            if (!cores.Any())
+            {
+                _notificador.Handle(new Notificacao("Nenuma cor encontrada"));
+                return null;
+            }
+
+            return _mapper.Map<IEnumerable<CorDTO>>(cores);
         }
     }
 }

@@ -5,7 +5,6 @@ namespace fin_api.Repositories
     public interface ICategoriaRepository
     {
         Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id);
-        Task<List<Icon>> GetAllIconsAsync();
         Task<Categoria> GetByIdAsync(string id);
         Task<IEnumerable<Categoria>> GetAllAsync(string userId);
         Task<bool> AddAsync(Categoria categoria);
@@ -16,5 +15,8 @@ namespace fin_api.Repositories
         Task<bool> IsCategoryHiddenAsync(string userId, string name);
         Task ShowHiddenCategory(string userId, Categoria categoria);
         Task<bool> HiddenCategory(string userId, string categoriaId);
+
+        Task<List<Icon>> GetAllIconsAsync();
+        Task<List<Cor>> GetAllCorAsync();
     }
 }
