@@ -16,7 +16,7 @@ namespace fin_api.Repositories
         }
 
         public async Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id)
-            => await _context.CategoriaUsuarios
+            => await _context.IconeCategoriaUsuarios
                 .Where(c => c.UserId == id)
                 .ToListAsync();
 
@@ -53,10 +53,11 @@ namespace fin_api.Repositories
             return true;
         }
 
-        public async Task UpdateAsync(Categoria categoria)
+        public async Task<bool> UpdateAsync(Categoria categoria)
         {
             _context.Categories.Update(categoria);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteAsync(Categoria categoria)
@@ -90,6 +91,24 @@ namespace fin_api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> CorPersonalizada(string userId, string categoriaId, string corId)
+        {
+            var corPersonalizada = new CorCategoriaUsuario { UserId = userId, CorId = corId, CategoriaId = categoriaId };
+            await _context.CorCategoriaUsuarios.AddAsync(corPersonalizada);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> IconePersonalizado(string userId, string categoriaId, string iconeId)
+        {
+            var iconePersonalizado = new IconeCategoriaUsuario { UserId = userId, IconId = iconeId, CategoriaId = categoriaId };
+            await _context.IconeCategoriaUsuarios.AddAsync(iconePersonalizado);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
         public async Task ShowHiddenCategory(string userId, Categoria categoria)
         {
             var hiddenCategory = await _context.UserHiddenCategories

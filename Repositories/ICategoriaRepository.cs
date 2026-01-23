@@ -4,11 +4,10 @@ namespace fin_api.Repositories
 {
     public interface ICategoriaRepository
     {
-        Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id);
         Task<Categoria> GetByIdAsync(string id, string userId);
         Task<IEnumerable<Categoria>> GetAllAsync(string userId);
         Task<bool> AddAsync(Categoria categoria);
-        Task UpdateAsync(Categoria categoria);
+        Task<bool> UpdateAsync(Categoria categoria);
         Task<bool> DeleteAsync(Categoria categoria);
         Task<bool> ExistsAsync(string userId, string name);
         Task<List<Categoria>> ListCategoriesHiddenAsync(string userId);
@@ -17,6 +16,9 @@ namespace fin_api.Repositories
         Task<bool> HiddenCategory(string userId, string categoriaId);
 
         Task<List<Icon>> GetAllIconsAsync();
+        Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id);
+        Task<bool> IconePersonalizado(string userId, string categoriaId, string iconeId);
         Task<List<Cor>> GetAllCorAsync();
+        Task<bool> CorPersonalizada(string userId, string categoriaId, string corId);
     }
 }

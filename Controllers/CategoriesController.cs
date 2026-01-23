@@ -48,6 +48,11 @@ namespace fin_api.Controllers
         public async Task<IActionResult> Cadastrar([FromBody] CategoriaDTO categoria)
             => CustomResponse(await _categoriaService.CreateCategoriaAsync(UsuarioId, categoria));
 
+        [HttpPut]
+        [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
+        public async Task<ActionResult<CategoriaDTO>> AtualizarCategoria([FromBody] CategoriaDTO categoria)
+            => CustomResponse(await _categoriaService.AtualizarCategoria(categoria, UsuarioId));
+
         [HttpDelete("{id}")]
         [ClaimsAuthorize("permission", "FIN:CTG_EXCLUIR")]
         public async Task<IActionResult> Deletar(string id)

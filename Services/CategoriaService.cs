@@ -154,13 +154,45 @@ namespace fin_api.Services
                 return null;
             }
 
-            if (categoria.UserId != userId) 
+            if (!categoria.IsDefault && categoria.UserId != userId) 
             {
                 _notificador.Handle(new Notificacao("Você não tem acesso a essa categoria!"));
                 return null;
             }
 
             return _mapper.Map<CategoriaDTO>(categoria);
+        }
+
+        public async Task<CategoriaDTO> AtualizarCategoria(CategoriaDTO categoriaDTO, string userId)
+        {
+            var categoria = await _repository.GetByIdAsync(categoriaDTO.Id, userId);
+            if(categoria == null)
+            {
+                _notificador.Handle(new Notificacao("Categoria não encontrada!"));
+                return null;
+            }
+            if (categoria.IsDefault)
+            {
+                if(categoria.Name != categoriaDTO.Name || categoria.Type != categoriaDTO.Type)
+                {
+                    _notificador.Handle(new Notificacao("Não é possivel atualizar o nome ou tipo de uma categoria padrão!"));
+                    return null;
+                }
+                if (categoria.IconId != categoriaDTO.IconId)
+                    await _repository.IconePersonalizado(userId, categoria.Id, categoriaDTO.IconId);
+
+                if (categoria.CorId != categoriaDTO.CorId)
+                    await _repository.CorPersonalizada(userId, categoria.Id, categoriaDTO.CorId);
+            } else
+            {
+                var result = await _repository.UpdateAsync(_mapper.Map(categoriaDTO, categoria));
+                if (!result)
+                {
+                    _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
+                    return null;
+                }
+            }
+            return categoriaDTO;
         }
     }
 }

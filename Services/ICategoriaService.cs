@@ -8,9 +8,9 @@ namespace fin_api.Services
         Task<IEnumerable<IconDTO>> ListarIconesAsync();
         Task<IEnumerable<CorDTO>> ListarCoresAsync();
         Task<CategoriaDTO> ObterCategoriaId(string id, string userId);
+        Task<CategoriaDTO> AtualizarCategoria(CategoriaDTO categoria, string userId);
         Task<IEnumerable<CategoriaDTO>> ListCategoriasAsync(string userId);
         Task<CategoriaDTO> CreateCategoriaAsync(string userId, CategoriaDTO categoria);
-        Task<Categoria> UpdateCategoriaAsync(Categoria categoria);
         Task<bool> DeleteCategoriaAsync(string id, string categoriaId);
     }
 }

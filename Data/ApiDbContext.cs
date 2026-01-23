@@ -13,7 +13,7 @@ namespace fin_api.Data
         public DbSet<Categoria> Categories { get; set; }
         public DbSet<UserHiddenCategory> UserHiddenCategories { get; set; }
         public DbSet<Icon> Icon { get; set; }
-        public DbSet<IconeCategoriaUsuario> CategoriaUsuarios { get; set; }
+        public DbSet<IconeCategoriaUsuario> IconeCategoriaUsuarios { get; set; }
         public DbSet<Cor> Cor { get; set; }
         public DbSet<CorCategoriaUsuario> CorCategoriaUsuarios { get; set; }
 
