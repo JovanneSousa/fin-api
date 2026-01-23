@@ -49,10 +49,7 @@ namespace fin_api.Services
             return result;
         }
 
-        public async Task<CategoriaDTO> GetCategoriaAsync(string id) 
-            => _mapper.Map<CategoriaDTO>(await _repository.GetByIdAsync(id));
-
-        public async Task<Categoria> CreateCategoriaAsync(string userId, Categoria categoria)
+        public async Task<CategoriaDTO> CreateCategoriaAsync(string userId, CategoriaDTO categoria)
         {
             var exists = await _repository.ExistsAsync(userId, categoria.Name);
             var isHidden = await _repository.IsCategoryHiddenAsync(userId, categoria.Name);
@@ -69,12 +66,11 @@ namespace fin_api.Services
                 if (toUnhide != null)
                 {
                     await _repository.ShowHiddenCategory(userId, toUnhide);
-                    return toUnhide;
+                    return _mapper.Map<CategoriaDTO>(toUnhide);
                 }
-
             }
             categoria.UserId = userId;
-            var result = await _repository.AddAsync(categoria);
+            var result = await _repository.AddAsync(_mapper.Map<Categoria>(categoria));
 
             if(!result)
             {
@@ -93,7 +89,7 @@ namespace fin_api.Services
 
         public async Task<bool> DeleteCategoriaAsync(string userId, string categoriaId)
         {
-            var categoria = await _repository.GetByIdAsync(categoriaId);
+            var categoria = await _repository.GetByIdAsync(categoriaId, userId);
             if (categoria == null)
             {
                 _notificador.Handle(new Notificacao("Categoria não encontrada!"));
@@ -147,6 +143,24 @@ namespace fin_api.Services
             }
 
             return _mapper.Map<IEnumerable<CorDTO>>(cores);
+        }
+
+        public async Task<CategoriaDTO> ObterCategoriaId(string id, string userId)
+        {
+            var categoria = await _repository.GetByIdAsync(id, userId);
+            if (categoria == null)
+            {
+                _notificador.Handle(new Notificacao("Categoria não encontrada!"));
+                return null;
+            }
+
+            if (categoria.UserId != userId) 
+            {
+                _notificador.Handle(new Notificacao("Você não tem acesso a essa categoria!"));
+                return null;
+            }
+
+            return _mapper.Map<CategoriaDTO>(categoria);
         }
     }
 }

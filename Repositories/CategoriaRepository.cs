@@ -21,8 +21,17 @@ namespace fin_api.Repositories
                 .ToListAsync();
 
 
-        public async Task<Categoria> GetByIdAsync(string id)
-            => await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        public async Task<Categoria> GetByIdAsync(string id, string userId)
+            => await _context.Categories
+                .Include(c => c.Icone)
+                .Include(c => c.IconeCategoriaUsuario
+                    .Where(c => c.UserId == userId))
+                    .ThenInclude(c => c.Icone)
+                .Include(c => c.Cor)
+                .Include(c => c.CorCategoriaUsuarios
+                    .Where(c => c.UserId == userId))
+                    .ThenInclude(c => c.Cor)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
         public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
             => await _context.Categories
@@ -37,7 +46,7 @@ namespace fin_api.Repositories
                                     .ThenInclude(c => c.Cor)
                         .ToListAsync();
 
-        public async Task<bool> AddAsync( Categoria categoria)
+        public async Task<bool> AddAsync(Categoria categoria)
         {
             _context.Categories.Add(categoria);
             await _context.SaveChangesAsync();

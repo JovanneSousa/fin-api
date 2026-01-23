@@ -23,6 +23,11 @@ namespace fin_api.Controllers
             _categoriaService = service;
         }
 
+        [HttpGet("{id}")]
+        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        public async Task<ActionResult<CategoriaDTO>> ObterCategoriaPorId(string id)
+            => CustomResponse(await _categoriaService.ObterCategoriaId(id, UsuarioId));
+
         [HttpGet]
         [ClaimsAuthorize("permission", "FIN:CTG_LER")]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> ListarCategorias() 
@@ -40,7 +45,7 @@ namespace fin_api.Controllers
 
         [HttpPost]
         [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
-        public async Task<IActionResult> Cadastrar([FromBody] Categoria categoria)
+        public async Task<IActionResult> Cadastrar([FromBody] CategoriaDTO categoria)
             => CustomResponse(await _categoriaService.CreateCategoriaAsync(UsuarioId, categoria));
 
         [HttpDelete("{id}")]

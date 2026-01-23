@@ -8,7 +8,7 @@ namespace fin_api.Models
         public string Name { get; set; }
         public TransacaoType Type { get; set; }
         public string UserId { get; set; }
-        public bool IsDefault { get; set; }
+        public bool IsDefault { get; set; } = false;
 
         [JsonIgnore]
         public ICollection<Transacao> Transacoes { get; set; } = new List<Transacao>();
