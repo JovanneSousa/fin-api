@@ -33,12 +33,6 @@ namespace fin_api.Services
             var hiddenCategoriesId = await _repository.ListCategoriesHiddenAsync(userId);
             var visibleCategories = categories.Where(c => !hiddenCategoriesId.Contains(c));
 
-            foreach (var category in visibleCategories) 
-            {
-                var usuarioCategoria = category.IconeCategoriaUsuario.FirstOrDefault();
-                if (usuarioCategoria != null) category.Icone = usuarioCategoria.Icone;
-            }
-
             var result = _mapper.Map<IEnumerable<CategoriaDTO>>(visibleCategories);
             if (!result.Any())
             {
@@ -163,9 +157,13 @@ namespace fin_api.Services
             return _mapper.Map<CategoriaDTO>(categoria);
         }
 
-        public async Task<CategoriaDTO> AtualizarCategoria(CategoriaDTO categoriaDTO, string userId)
+        private bool AtualizacaoInvalida(Categoria categoria, CategoriaDTO categoriaDTO)
+            => categoria.Name != categoriaDTO.Name || categoria.Type != categoriaDTO.Type;
+
+
+        public async Task<CategoriaDTO> AtualizarCategoria(CategoriaDTO categoriaDTO, string userId, string categoriaId)
         {
-            var categoria = await _repository.GetByIdAsync(categoriaDTO.Id, userId);
+            var categoria = await _repository.GetByIdAsync(categoriaId, userId);
             if(categoria == null)
             {
                 _notificador.Handle(new Notificacao("Categoria não encontrada!"));
@@ -173,16 +171,54 @@ namespace fin_api.Services
             }
             if (categoria.IsDefault)
             {
-                if(categoria.Name != categoriaDTO.Name || categoria.Type != categoriaDTO.Type)
+                if(AtualizacaoInvalida(categoria, categoriaDTO))
                 {
                     _notificador.Handle(new Notificacao("Não é possivel atualizar o nome ou tipo de uma categoria padrão!"));
                     return null;
                 }
-                if (categoria.IconId != categoriaDTO.IconId)
-                    await _repository.IconePersonalizado(userId, categoria.Id, categoriaDTO.IconId);
+                if (categoria.Icone.Id != categoriaDTO.IconId)
+                {
+                    var result = await AtualizarValorPersonalizadoAsync<IconeCategoriaUsuario>(
+                        userId,
+                        categoria.Id,
+                        categoriaDTO.IconId,
+                        _repository.GetIconsByUsuarioAsync,
+                        _repository.DeleteIconCategoriaUsuario,
+                        _repository.SalvaIconePersonalizado,
+                        (userId, categoriaId, iconId) => new IconeCategoriaUsuario
+                        {
+                            UserId = userId,
+                            CategoriaId = categoriaId,
+                            IconId = iconId
+                        });
+                    if (!result)
+                    {
+                        _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
+                        return null;
+                    }
+                }
 
-                if (categoria.CorId != categoriaDTO.CorId)
-                    await _repository.CorPersonalizada(userId, categoria.Id, categoriaDTO.CorId);
+                if (categoria.Cor.Id != categoriaDTO.CorId)
+                {
+                    var result = await AtualizarValorPersonalizadoAsync<CorCategoriaUsuario>(
+                        userId,
+                        categoria.Id,
+                        categoriaDTO.CorId,
+                        _repository.GetCorByUsuarioAsync,
+                        _repository.DeleteCorPersonalizadaAsync,
+                        _repository.SalvaCorPersonalizadaAsync,
+                        (userId, categoriaId, corId) => new CorCategoriaUsuario
+                        {
+                            UserId = userId,
+                            CategoriaId = categoriaId,
+                            CorId = corId
+                        });
+                    if (!result)
+                    {
+                        _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
+                        return null;
+                    }
+                }
             } else
             {
                 var result = await _repository.UpdateAsync(_mapper.Map(categoriaDTO, categoria));
@@ -194,5 +230,28 @@ namespace fin_api.Services
             }
             return categoriaDTO;
         }
+
+        private async Task<bool> AtualizarValorPersonalizadoAsync<T>(
+            string userId,
+            string categoriaId,
+            string novoValor,
+            Func<string, string, Task<T>> getExistente,
+            Func<T, Task<bool>> delete,
+            Func<T, Task<bool>> salvar,
+            Func<string, string, string, T> factory
+        )
+        {
+            var existente = await getExistente(userId, categoriaId);
+            if (existente != null)
+            {
+                var deleted = await delete(existente);
+                if (!deleted)
+                    return false;
+            }
+
+            var novo = factory(userId, categoriaId, novoValor);
+            return await salvar(novo);
+        }
+
     }
 }

@@ -16,9 +16,13 @@ namespace fin_api.Repositories
         Task<bool> HiddenCategory(string userId, string categoriaId);
 
         Task<List<Icon>> GetAllIconsAsync();
-        Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id);
-        Task<bool> IconePersonalizado(string userId, string categoriaId, string iconeId);
+        Task<IconeCategoriaUsuario> GetIconsByUsuarioAsync(string usuarioId, string categoriaId);
+        Task<bool> DeleteIconCategoriaUsuario(IconeCategoriaUsuario iconeCategoriaUsuario);
+        Task<bool> SalvaIconePersonalizado(IconeCategoriaUsuario iconeCategoriaUsuario);
+
         Task<List<Cor>> GetAllCorAsync();
-        Task<bool> CorPersonalizada(string userId, string categoriaId, string corId);
+        Task<CorCategoriaUsuario> GetCorByUsuarioAsync(string usuarioId, string categoriaId);
+        Task<bool> DeleteCorPersonalizadaAsync(CorCategoriaUsuario corCategoriaUsuario);
+        Task<bool> SalvaCorPersonalizadaAsync(CorCategoriaUsuario corCategoriaUsuario);
     }
 }

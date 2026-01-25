@@ -70,13 +70,13 @@ namespace fin_api.Repositories
                     .AsNoTracking()
                     .OrderByDescending(t => t.DataMovimentacao)
                     .Include(t => t.Categoria)
-                        .ThenInclude(c => c.Icone)
+                        .ThenInclude(c => c.IconePadrao)
                     .Include(t => t.Categoria)
                         .ThenInclude(c => c.IconeCategoriaUsuario
                         .Where(c => c.UserId == userId))
                         .ThenInclude(c => c.Icone)
                     .Include(c => c.Categoria)
-                        .ThenInclude(c => c.Cor)
+                        .ThenInclude(c => c.CorPadrao)
                     .Include(t => t.Categoria)
                         .ThenInclude(c => c.CorCategoriaUsuarios
                         .Where(c => c.UserId == userId))

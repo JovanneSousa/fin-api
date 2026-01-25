@@ -3,8 +3,9 @@ using fin_api.Models;
 
 namespace fin_api.DTOs
 {
-    public class TransacaoDTO : Entity
+    public class TransacaoDTO 
     {
+        public string Id { get; set; }
         public string UserId { get; set; }
         public TransacaoType Type { get; set; }
         public string Titulo { get; set; }

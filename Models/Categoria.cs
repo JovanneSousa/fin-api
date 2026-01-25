@@ -1,4 +1,5 @@
 ﻿using fin_api.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace fin_api.Models
@@ -13,13 +14,17 @@ namespace fin_api.Models
         [JsonIgnore]
         public ICollection<Transacao> Transacoes { get; set; } = new List<Transacao>();
         public string IconId { get; set; }
-        public Icon Icone { get; set; }
+        public Icon IconePadrao { get; set; }
+        [NotMapped]
         public ICollection<IconeCategoriaUsuario> IconeCategoriaUsuario { get; set; }
             = new List<IconeCategoriaUsuario>();
+        public Icon Icone => IconeCategoriaUsuario.FirstOrDefault()?.Icone ?? IconePadrao;
 
         public string CorId { get; set; }
-        public Cor Cor { get; set; }
+        public Cor CorPadrao { get; set; }
+        [NotMapped]
         public ICollection<CorCategoriaUsuario> CorCategoriaUsuarios { get; set; } 
             = new List<CorCategoriaUsuario>();
+        public Cor Cor => CorCategoriaUsuarios.FirstOrDefault()?.Cor ?? CorPadrao;
     }
 }

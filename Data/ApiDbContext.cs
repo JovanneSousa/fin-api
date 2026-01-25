@@ -37,12 +37,12 @@ namespace fin_api.Data
             {
                 entity.HasKey(c => c.Id);
 
-                entity.HasOne(c => c.Icone)
+                entity.HasOne(c => c.IconePadrao)
                     .WithMany(i => i.Categorias)
                     .HasForeignKey(c => c.IconId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(c => c.Cor)
+                entity.HasOne(c => c.CorPadrao)
                     .WithMany(c => c.Categorias)
                     .HasForeignKey(c => c.CorId)
                     .OnDelete(DeleteBehavior.Restrict);

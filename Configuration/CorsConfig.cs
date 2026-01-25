@@ -13,6 +13,8 @@
             if (allowedOrigin == null || allowedOrigin.Length == 0)
                 throw new InvalidOperationException("Nenhuma origem configurada em 'MEU_APP'");
 
+            Console.WriteLine(allowedOrigin);
+
             builder.Services.AddCors(o =>
             {
                 o.AddPolicy("Production", policy =>
