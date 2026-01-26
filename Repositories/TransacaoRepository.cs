@@ -15,8 +15,21 @@ namespace fin_api.Repositories
             _context = context;
         }
 
-        public async Task<Transacao> GetByIdAsync(string id)
-            => await _context.Transactions.Include(t => t.Categoria).FirstOrDefaultAsync(t => t.Id == id);
+        public async Task<Transacao> GetByIdAsync(string id, string userId)
+            => await _context.Transactions
+            .Include(t => t.Categoria)
+                .ThenInclude(t => t.IconePadrao)
+            .Include(t => t.Categoria)
+                .ThenInclude(t => t.CorPadrao)
+            .Include(t => t.Categoria)
+                .ThenInclude(t => t.IconeCategoriaUsuario
+                    .Where(c => c.UserId == userId))
+                    .ThenInclude(c => c.Icone)
+            .Include(t => t.Categoria)
+                .ThenInclude(c => c.CorCategoriaUsuarios
+                    .Where(c => c.UserId == userId))
+                    .ThenInclude(c => c.Cor)
+            .FirstOrDefaultAsync(t => t.Id == id);
 
         public async Task<IEnumerable<Transacao>> GetAllAsync(string userId)
             => await _context.Transactions

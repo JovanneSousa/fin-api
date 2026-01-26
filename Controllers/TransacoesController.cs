@@ -59,7 +59,7 @@ namespace fin_api.Controllers
 
         [HttpPut("{id}")]
         [ClaimsAuthorize("permission", "FIN:TRN_EDITAR")]
-        public async Task<ActionResult<Transacao>> Update(string id, [FromBody] Transacao transacao)
+        public async Task<ActionResult<TransacaoDTO>> Update(string id, [FromBody] TransacaoDTO transacao)
             => CustomResponse(await _transacaoService.UpdateTransactionAsync(id, transacao, UsuarioId));
     }
 }

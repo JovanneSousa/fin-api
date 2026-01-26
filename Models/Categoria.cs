@@ -15,16 +15,16 @@ namespace fin_api.Models
         public ICollection<Transacao> Transacoes { get; set; } = new List<Transacao>();
         public string IconId { get; set; }
         public Icon IconePadrao { get; set; }
-        [NotMapped]
         public ICollection<IconeCategoriaUsuario> IconeCategoriaUsuario { get; set; }
             = new List<IconeCategoriaUsuario>();
+        [NotMapped]
         public Icon Icone => IconeCategoriaUsuario.FirstOrDefault()?.Icone ?? IconePadrao;
 
         public string CorId { get; set; }
         public Cor CorPadrao { get; set; }
-        [NotMapped]
         public ICollection<CorCategoriaUsuario> CorCategoriaUsuarios { get; set; } 
             = new List<CorCategoriaUsuario>();
+        [NotMapped]
         public Cor Cor => CorCategoriaUsuarios.FirstOrDefault()?.Cor ?? CorPadrao;
     }
 }
