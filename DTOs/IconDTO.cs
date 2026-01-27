@@ -2,8 +2,9 @@
 
 namespace fin_api.DTOs
 {
-    public class IconDTO : Entity
+    public class IconDTO 
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
     }

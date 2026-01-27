@@ -5,7 +5,7 @@ namespace fin_api.Repositories
 {
     public interface ITransacaoRepository
     {
-        public Task<Transacao> GetByIdAsync(string id);
+        public Task<Transacao> GetByIdAsync(string id, string userId);
         public Task<List<Transacao>> GetByParentTransactionId(string parentTrancationId);
         public Task<IEnumerable<Transacao>> GetAllAsync(string userId);
         Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate);

@@ -13,8 +13,9 @@ namespace fin_api.Data
         public DbSet<Categoria> Categories { get; set; }
         public DbSet<UserHiddenCategory> UserHiddenCategories { get; set; }
         public DbSet<Icon> Icon { get; set; }
-
-        public DbSet<IconeCategoriaUsuario> CategoriaUsuarios { get; set; }
+        public DbSet<IconeCategoriaUsuario> IconeCategoriaUsuarios { get; set; }
+        public DbSet<Cor> Cor { get; set; }
+        public DbSet<CorCategoriaUsuario> CorCategoriaUsuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -36,18 +37,45 @@ namespace fin_api.Data
             {
                 entity.HasKey(c => c.Id);
 
-                entity.HasOne(c => c.Icone)
+                entity.HasOne(c => c.IconePadrao)
                     .WithMany(i => i.Categorias)
                     .HasForeignKey(c => c.IconId)
                     .OnDelete(DeleteBehavior.Restrict);
-                    
+
+                entity.HasOne(c => c.CorPadrao)
+                    .WithMany(c => c.Categorias)
+                    .HasForeignKey(c => c.CorId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
+
+            builder.Entity<Cor>()
+                .HasKey(c => c.Id);
 
             builder.Entity<Icon>()
                 .HasKey(i => i.Id);
 
             builder.Entity<Usuario>()
                 .HasKey(u => u.Id);
+
+            builder.Entity<CorCategoriaUsuario>(entity =>
+            {
+                entity.HasKey(cc => new { cc.UserId, cc.CategoriaId });
+
+                entity.HasOne(c => c.Categoria)
+                    .WithMany(c => c.CorCategoriaUsuarios)
+                    .HasForeignKey(c => c.CategoriaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(c => c.Cor)
+                    .WithMany()
+                    .HasForeignKey(c => c.CorId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(u => u.Usuario)
+                   .WithMany()
+                   .HasForeignKey(u => u.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
+            });
 
             builder.Entity<IconeCategoriaUsuario>(entity =>
             {

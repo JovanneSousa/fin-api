@@ -1,4 +1,5 @@
 ﻿using fin_api.Data;
+using fin_api.DTOs;
 using fin_api.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,35 +16,48 @@ namespace fin_api.Repositories
             _context = context;
         }
 
-        public async Task<List<IconeCategoriaUsuario>> GetIconsByUsuarioAsync(string id)
-            => await _context.CategoriaUsuarios
-                .Where(c => c.UserId == id)
-                .ToListAsync();
 
-
-        public async Task<Categoria> GetByIdAsync(string id)
-            => await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        // met
+        public async Task<Categoria> GetByIdAsync(string id, string userId)
+            => await _context.Categories
+             .Where(c => c.Id == id)
+             .Include(c => c.IconePadrao)
+             .Include(c => c.IconeCategoriaUsuario
+                 .Where(c => c.UserId == userId))
+                 .ThenInclude(c => c.Icone)
+            .Include(c => c.CorPadrao)
+             .Include(c => c.CorCategoriaUsuarios
+                 .Where(c => c.UserId == userId))
+                 .ThenInclude(c => c.Cor)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
 
         public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
             => await _context.Categories
                         .Where(c => c.UserId == userId || c.IsDefault)
-                        .Include(c => c.Icone)
+                        .Include(c => c.IconePadrao)
                         .Include(c => c.IconeCategoriaUsuario
                             .Where(c => c.UserId == userId))
                             .ThenInclude(c => c.Icone)
+                        .Include(c => c.CorPadrao)
+                        .Include(c => c.CorCategoriaUsuarios
+                                    .Where(c => c.UserId == userId))
+                                    .ThenInclude(c => c.Cor)
+                        .AsNoTracking()
                         .ToListAsync();
 
-        public async Task<bool> AddAsync( Categoria categoria)
+        public async Task<bool> AddAsync(Categoria categoria)
         {
             _context.Categories.Add(categoria);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task UpdateAsync(Categoria categoria)
+        public async Task<bool> UpdateAsync(Categoria categoria)
         {
             _context.Categories.Update(categoria);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteAsync(Categoria categoria)
@@ -77,6 +91,9 @@ namespace fin_api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+
+
         public async Task ShowHiddenCategory(string userId, Categoria categoria)
         {
             var hiddenCategory = await _context.UserHiddenCategories
@@ -100,6 +117,50 @@ namespace fin_api.Repositories
 
 
             return result;
+        }
+
+        public async Task<List<Icon>> GetAllIconsAsync()
+            => await _context.Icon
+                .OrderBy(i => i.Name)
+                .ToListAsync();
+
+        public async Task<List<Cor>> GetAllCorAsync()
+            => await _context.Cor
+                .ToListAsync();
+
+        public async Task<IconeCategoriaUsuario> GetIconsByUsuarioAsync(string usuarioId, string categoriaId)
+            => await _context.IconeCategoriaUsuarios
+                .FirstOrDefaultAsync(c => c.UserId == usuarioId && c.CategoriaId == categoriaId);
+
+        public async Task<bool> DeleteIconCategoriaUsuario(IconeCategoriaUsuario iconeCategoriaUsuario)
+        {
+            _context.Remove(iconeCategoriaUsuario);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> SalvaIconePersonalizado(IconeCategoriaUsuario iconeCategoriaUsuario)
+        {
+            await _context.IconeCategoriaUsuarios.AddAsync(iconeCategoriaUsuario);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<CorCategoriaUsuario> GetCorByUsuarioAsync(string usuarioId, string categoriaId)
+            => await _context.CorCategoriaUsuarios
+                .FirstOrDefaultAsync(c => c.UserId == usuarioId && c.CategoriaId == categoriaId);
+
+        public async Task<bool> DeleteCorPersonalizadaAsync(CorCategoriaUsuario corCategoriaUsuario)
+        {
+            _context.Remove(corCategoriaUsuario);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> SalvaCorPersonalizadaAsync(CorCategoriaUsuario corCategoriaUsuario)
+        {
+            await _context.CorCategoriaUsuarios.AddAsync(corCategoriaUsuario);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

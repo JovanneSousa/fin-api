@@ -9,7 +9,9 @@ namespace fin_api.Configuration.Mapper
         public CategoriaProfile()
         {
             CreateMap<Categoria, CategoriaDTO>();
-            CreateMap<CategoriaDTO, Categoria>();
+            CreateMap<CategoriaDTO, Categoria>()
+                .ForAllMembers(opt =>
+                    opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

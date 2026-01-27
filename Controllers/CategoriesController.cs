@@ -23,15 +23,35 @@ namespace fin_api.Controllers
             _categoriaService = service;
         }
 
+        [HttpGet("{id}")]
+        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        public async Task<ActionResult<CategoriaDTO>> ObterCategoriaPorId(string id)
+            => CustomResponse(await _categoriaService.ObterCategoriaId(id, UsuarioId));
+
         [HttpGet]
         [ClaimsAuthorize("permission", "FIN:CTG_LER")]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> ListarCategorias() 
             => CustomResponse(await _categoriaService.ListCategoriasAsync(UsuarioId));
 
+        [HttpGet("icones")]
+        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        public async Task<ActionResult<IEnumerable<IconDTO>>> ListarIcones()
+            => CustomResponse(await _categoriaService.ListarIconesAsync());
+
+        [HttpGet("cores")]
+        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        public async Task<ActionResult<IEnumerable<IconDTO>>> ListarCores()
+            => CustomResponse(await _categoriaService.ListarCoresAsync());
+
         [HttpPost]
         [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
-        public async Task<IActionResult> Cadastrar([FromBody] Categoria categoria)
+        public async Task<IActionResult> Cadastrar([FromBody] CategoriaDTO categoria)
             => CustomResponse(await _categoriaService.CreateCategoriaAsync(UsuarioId, categoria));
+
+        [HttpPut("atualizar/{id}")]
+        [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
+        public async Task<ActionResult<CategoriaDTO>> AtualizarCategoria([FromBody] CategoriaDTO categoria, string id)
+            => CustomResponse(await _categoriaService.AtualizarCategoria(categoria, UsuarioId, id));
 
         [HttpDelete("{id}")]
         [ClaimsAuthorize("permission", "FIN:CTG_EXCLUIR")]

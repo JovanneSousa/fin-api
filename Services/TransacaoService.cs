@@ -40,9 +40,9 @@ namespace fin_api.Services
         public async Task<IEnumerable<TransacaoDTO>> ListTransactionsAsync(string userId)
             => _mapper.Map<IEnumerable<TransacaoDTO>>(await _repository.GetAllAsync(userId));
 
-        public async Task<Transacao> GetTransactionAsync(string id, string userId)
+        public async Task<TransacaoDTO> GetTransactionAsync(string id, string userId)
         {
-            var transacao = await _repository.GetByIdAsync(id);
+            var transacao = await _repository.GetByIdAsync(id, userId);
             if(transacao == null)
             {
                 _notificador.Handle(new Notificacao("Transação não existe!"));
@@ -55,7 +55,7 @@ namespace fin_api.Services
                 return null;
             }
 
-            return transacao;
+            return _mapper.Map<TransacaoDTO>(transacao);
         }
 
         public async Task<Transacao> CreateTransactionAsync(Transacao transacao, string userId)
@@ -86,9 +86,9 @@ namespace fin_api.Services
         }
 
 
-        public async Task<Transacao> UpdateTransactionAsync(string id, Transacao transacao, string userId)
+        public async Task<TransacaoDTO> UpdateTransactionAsync(string id, TransacaoDTO transacaoDTO, string userId)
         { 
-            var existente = await _repository.GetByIdAsync(id);
+            var existente = await _repository.GetByIdAsync(id, userId);
             if (existente == null)
             {
                 _notificador.Handle(new Notificacao("Transação não encontrada!"));
@@ -101,54 +101,53 @@ namespace fin_api.Services
                 return null;
             }
 
-            transacao.Id = existente.Id;
-            transacao.UserId = existente.UserId;
-            transacao.Type = existente.Type;
-            transacao.CreatedAt = existente.CreatedAt;
-            transacao.ParentTransactionId = existente.ParentTransactionId;
+            transacaoDTO.Id = existente.Id;
+            transacaoDTO.UserId = existente.UserId;
+            transacaoDTO.Type = existente.Type;
 
 
             // Se não vai ser mais recorrente
-            if (existente.IsRecurring && !transacao.IsRecurring)
-                return await TransformaRecorrenciaEmUnica(existente, transacao);
+            if (existente.IsRecurring && !transacaoDTO.IsRecurring)
+                return await TransformaRecorrenciaEmUnica(existente, transacaoDTO);
 
             // Se vai ser recorrente
-            if (!existente.IsRecurring && transacao.IsRecurring)
-                return await TransformaEmRecorrente(existente, transacao);
+            if (!existente.IsRecurring && transacaoDTO.IsRecurring)
+                return await TransformaEmRecorrente(existente, transacaoDTO);
 
             // Atualização de recorrencia
-            if (existente.IsRecurring && transacao.IsRecurring)
+            if (existente.IsRecurring && transacaoDTO.IsRecurring)
             {
-                if (!await AtualizarRecorrencia(existente, transacao))
+                if (!await AtualizarRecorrencia(existente, transacaoDTO))
                     return null;
 
-                return existente;
+                return _mapper.Map<TransacaoDTO>(existente);
             }
 
-            existente.Titulo = transacao.Titulo;
-            existente.Valor = transacao.Valor;
-            existente.CategoriaId = transacao.CategoriaId;
-            existente.DataMovimentacao = transacao.DataMovimentacao;
+            existente.Titulo = transacaoDTO.Titulo;
+            existente.Valor = transacaoDTO.Valor;
+            existente.CategoriaId = transacaoDTO.CategoriaId;
+            existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
 
+            // Atualiza somente dados basicos
             if(!await _repository.UpdateAsync(existente))
             {
                 _notificador.Handle(new Notificacao("Falha ao atualizar transação!"));
                 return null;
             } ;
 
-            return existente;
+            return _mapper.Map<TransacaoDTO>(existente);
         }
 
-        private async Task<Transacao> TransformaEmRecorrente(Transacao existente, Transacao transacao)
+        private async Task<TransacaoDTO> TransformaEmRecorrente(Transacao existente, TransacaoDTO transacaoDTO)
         {
             existente.IsRecurring = true;
             existente.RecorrenciaType = RecorrenciaType.Mensalmente;
-            existente.RecorrenciaEndDate = transacao.DataMovimentacao.AddMonths(12);
+            existente.RecorrenciaEndDate = transacaoDTO.DataMovimentacao.AddMonths(12);
 
-            existente.Titulo = transacao.Titulo;
-            existente.Valor = transacao.Valor;
-            existente.CategoriaId = transacao.CategoriaId;
-            existente.DataMovimentacao = transacao.DataMovimentacao;
+            existente.Titulo = transacaoDTO.Titulo;
+            existente.Valor = transacaoDTO.Valor;
+            existente.CategoriaId = transacaoDTO.CategoriaId;
+            existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
 
             if (!await _repository.UpdateAsync(existente))
             {
@@ -162,13 +161,13 @@ namespace fin_api.Services
             if (existente.Type == TransacaoType.Despesa)
                 if (!await GerarParcelas(existente)) return null;
 
-            return existente;
+            return _mapper.Map<TransacaoDTO>(existente);
         }
 
         public async Task<bool> DeleteTransactionAsync(string id, string usuarioId)
         {
 
-            var existing = await _repository.GetByIdAsync(id);
+            var existing = await _repository.GetByIdAsync(id, usuarioId);
             if (existing == null) 
             {
                 _notificador.Handle(new Notificacao("Transação não encontrada!"));
@@ -227,7 +226,7 @@ namespace fin_api.Services
             return result;
         }
 
-        private async Task<Transacao> TransformaRecorrenciaEmUnica(Transacao existente, Transacao transacao)
+        private async Task<TransacaoDTO> TransformaRecorrenciaEmUnica(Transacao existente, TransacaoDTO transacaoDTO)
         {
             if (!await RemoverRecorrencias(existente.Id))
             {
@@ -240,10 +239,10 @@ namespace fin_api.Services
             existente.RecorrenciaEndDate = null;
             existente.ParentTransactionId = null;
 
-            existente.Titulo = transacao.Titulo;
-            existente.Valor = transacao.Valor;
-            existente.CategoriaId = transacao.CategoriaId;
-            existente.DataMovimentacao = transacao.DataMovimentacao;
+            existente.Titulo = transacaoDTO.Titulo;
+            existente.Valor = transacaoDTO.Valor;
+            existente.CategoriaId = transacaoDTO.CategoriaId;
+            existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
 
             // Recalcula parcelas caso o numero minimo for de parcelas for atendido
             if (existente.Type == TransacaoType.Despesa && existente.Parcelas > 1)
@@ -255,7 +254,7 @@ namespace fin_api.Services
                 return null;
             }
             ;
-            return existente;
+            return _mapper.Map<TransacaoDTO>(existente);
         }
 
         private async Task<bool> GerarRecorrencias(Transacao origem)
@@ -282,7 +281,7 @@ namespace fin_api.Services
             return true;
         }
 
-        private async Task<bool> AtualizarRecorrencia(Transacao existente, Transacao novosDados)
+        private async Task<bool> AtualizarRecorrencia(Transacao existente, TransacaoDTO novosDados)
         {
             existente.Titulo = novosDados.Titulo;
             existente.Valor = novosDados.Valor;
