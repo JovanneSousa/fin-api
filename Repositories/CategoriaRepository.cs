@@ -16,8 +16,6 @@ namespace fin_api.Repositories
             _context = context;
         }
 
-
-        // met
         public async Task<Categoria> GetByIdAsync(string id, string userId)
             => await _context.Categories
              .Where(c => c.Id == id)
@@ -29,7 +27,6 @@ namespace fin_api.Repositories
              .Include(c => c.CorCategoriaUsuarios
                  .Where(c => c.UserId == userId))
                  .ThenInclude(c => c.Cor)
-            .AsNoTracking()
             .FirstOrDefaultAsync();
 
         public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)

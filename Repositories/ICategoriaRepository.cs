@@ -4,7 +4,7 @@ namespace fin_api.Repositories
 {
     public interface ICategoriaRepository
     {
-        Task<Categoria> GetByIdAsync(string id, string userId);
+        Task<Categoria> GetByIdAsync(string id, string userId); 
         Task<IEnumerable<Categoria>> GetAllAsync(string userId);
         Task<bool> AddAsync(Categoria categoria);
         Task<bool> UpdateAsync(Categoria categoria);

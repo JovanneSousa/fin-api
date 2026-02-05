@@ -221,9 +221,7 @@ namespace fin_api.Services
                 }
             } else
             {
-                _mapper.Map(categoriaDTO, categoria);
-
-                var result = await _repository.UpdateAsync(categoria);
+                var result = await _repository.UpdateAsync(_mapper.Map(categoriaDTO, categoria));
                 if (!result)
                 {
                     _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
