@@ -12,6 +12,15 @@ namespace fin_api.Configuration.Mapper
             CreateMap<CategoriaDTO, Categoria>()
                 .ForAllMembers(opt =>
                     opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<CategoriaUpdateDTO, Categoria>()
+                .ForMember(d => d.IconePadrao, o => o.Ignore())
+                .ForMember(d => d.CorPadrao, o => o.Ignore())
+                .ForMember(d => d.IconeCategoriaUsuario, o => o.Ignore())
+                .ForMember(d => d.CorCategoriaUsuarios, o => o.Ignore())
+                .ForMember(d => d.Id, o => o.Ignore())
+                .ForMember(d => d.IsDefault, o => o.Ignore())
+                .ForAllMembers(o =>
+                    o.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

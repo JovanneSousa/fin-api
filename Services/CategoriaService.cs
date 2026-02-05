@@ -157,11 +157,11 @@ namespace fin_api.Services
             return _mapper.Map<CategoriaDTO>(categoria);
         }
 
-        private bool AtualizacaoInvalida(Categoria categoria, CategoriaDTO categoriaDTO)
+        private bool AtualizacaoInvalida(Categoria categoria, CategoriaUpdateDTO categoriaDTO)
             => categoria.Name != categoriaDTO.Name || categoria.Type != categoriaDTO.Type;
 
 
-        public async Task<CategoriaDTO> AtualizarCategoria(CategoriaDTO categoriaDTO, string userId, string categoriaId)
+        public async Task<CategoriaDTO> AtualizarCategoria(CategoriaUpdateDTO categoriaDTO, string userId, string categoriaId)
         {
             var categoria = await _repository.GetByIdAsync(categoriaId, userId);
             if(categoria == null)
@@ -176,7 +176,7 @@ namespace fin_api.Services
                     _notificador.Handle(new Notificacao("Não é possivel atualizar o nome ou tipo de uma categoria padrão!"));
                     return null;
                 }
-                if (categoria.Icone.Id != categoriaDTO.IconId)
+                if (!string.IsNullOrEmpty(categoriaDTO.IconId) && categoria.Icone.Id != categoriaDTO.IconId)
                 {
                     var result = await AtualizarValorPersonalizadoAsync<IconeCategoriaUsuario>(
                         userId,
@@ -198,7 +198,7 @@ namespace fin_api.Services
                     }
                 }
 
-                if (categoria.Cor.Id != categoriaDTO.CorId)
+                if (!string.IsNullOrEmpty(categoriaDTO.CorId) && categoria.Cor.Id != categoriaDTO.CorId)
                 {
                     var result = await AtualizarValorPersonalizadoAsync<CorCategoriaUsuario>(
                         userId,
@@ -221,14 +221,16 @@ namespace fin_api.Services
                 }
             } else
             {
-                var result = await _repository.UpdateAsync(_mapper.Map(categoriaDTO, categoria));
+                _mapper.Map(categoriaDTO, categoria);
+
+                var result = await _repository.UpdateAsync(categoria);
                 if (!result)
                 {
                     _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
                     return null;
                 }
             }
-            return categoriaDTO;
+            return _mapper.Map<CategoriaDTO>(categoria);
         }
 
         private async Task<bool> AtualizarValorPersonalizadoAsync<T>(

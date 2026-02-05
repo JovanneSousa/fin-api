@@ -1,6 +1,5 @@
 ﻿using fin_api.DTOs;
 using fin_api.Extensions;
-using fin_api.Models;
 using fin_api.Notificacoes;
 using fin_api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -50,7 +49,7 @@ namespace fin_api.Controllers
 
         [HttpPut("atualizar/{id}")]
         [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
-        public async Task<ActionResult<CategoriaDTO>> AtualizarCategoria([FromBody] CategoriaDTO categoria, string id)
+        public async Task<ActionResult<CategoriaDTO>> AtualizarCategoria([FromBody] CategoriaUpdateDTO categoria, string id)
             => CustomResponse(await _categoriaService.AtualizarCategoria(categoria, UsuarioId, id));
 
         [HttpDelete("{id}")]

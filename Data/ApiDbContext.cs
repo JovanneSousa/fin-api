@@ -59,7 +59,7 @@ namespace fin_api.Data
 
             builder.Entity<CorCategoriaUsuario>(entity =>
             {
-                entity.HasKey(cc => new { cc.UserId, cc.CategoriaId });
+                entity.HasKey(cc => new { cc.UserId, cc.CategoriaId, cc.CorId });
 
                 entity.HasOne(c => c.Categoria)
                     .WithMany(c => c.CorCategoriaUsuarios)
@@ -79,7 +79,7 @@ namespace fin_api.Data
 
             builder.Entity<IconeCategoriaUsuario>(entity =>
             {
-                entity.HasKey(cu => new { cu.UserId, cu.CategoriaId });
+                entity.HasKey(cu => new { cu.UserId, cu.CategoriaId, cu.IconId });
 
                 entity.HasOne(c => c.Categoria)
                     .WithMany(c => c.IconeCategoriaUsuario)
