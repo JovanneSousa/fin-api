@@ -61,5 +61,10 @@ namespace fin_api.Controllers
         [ClaimsAuthorize("permission", "FIN:TRN_EDITAR")]
         public async Task<ActionResult<TransacaoDTO>> Update(string id, [FromBody] TransacaoDTO transacao)
             => CustomResponse(await _transacaoService.UpdateTransactionAsync(id, transacao, UsuarioId));
+
+        [HttpGet("health")]
+        [AllowAnonymous]
+        public ActionResult WakeUp()
+            => Ok();
     }
 }
