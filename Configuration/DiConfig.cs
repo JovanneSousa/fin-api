@@ -16,6 +16,7 @@ namespace fin_api.Configuration
             builder.Services.AddScoped<ICategoriaService, CategoriaService>();
             builder.Services.AddScoped<INotificador, Notificador>();
             builder.Services.AddScoped<IUser, AspNetUser>();
+            builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

@@ -16,6 +16,7 @@ namespace fin_api.Data
         public DbSet<IconeCategoriaUsuario> IconeCategoriaUsuarios { get; set; }
         public DbSet<Cor> Cor { get; set; }
         public DbSet<CorCategoriaUsuario> CorCategoriaUsuarios { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
