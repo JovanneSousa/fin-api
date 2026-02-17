@@ -12,22 +12,16 @@ namespace fin_api.Services
     public class RegistroUsuarioIntegrationHandler : BackgroundService
     {
         private readonly IMessageBus _bus;
-        private readonly IUsuarioService _usuarioService;
-        private readonly INotificador _notificador;
-        private readonly IMapper _mapper;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public RegistroUsuarioIntegrationHandler
             (
                 IMessageBus bus,
-                IUsuarioService usuarioService,
-                INotificador notificador,
-                IMapper mapper
+                IServiceScopeFactory scopeFactory
             )
         {
             _bus = bus;
-            _usuarioService = usuarioService;
-            _notificador = notificador;
-            _mapper = mapper;
+            _scopeFactory = scopeFactory;
         }
 
 
@@ -41,6 +35,13 @@ namespace fin_api.Services
 
         private async Task<ResponseMessage> RegistrarUsuario(UsuarioRegistradoIntegrationEvent usuarioMessage)
         {
+            using var scope = _scopeFactory.CreateScope();
+            var provider = scope.ServiceProvider;
+
+            var _usuarioService = provider.GetRequiredService<IUsuarioService>();
+            var _notificador = provider.GetRequiredService<INotificador>();
+            var _mapper = provider.GetRequiredService<IMapper>();
+
             var usuario = _mapper.Map<Usuario>(usuarioMessage);
 
             if (!usuario.EhValido())

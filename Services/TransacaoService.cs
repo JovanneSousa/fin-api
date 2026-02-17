@@ -4,7 +4,6 @@ using fin_api.Enums;
 using fin_api.Models;
 using fin_api.Notificacoes;
 using fin_api.Repositories;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace fin_api.Services
 {

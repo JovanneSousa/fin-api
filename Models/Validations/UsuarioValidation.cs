@@ -17,6 +17,14 @@ namespace fin_api.Models.Validations
                 .WithMessage("O nome deve ter pelo menos 2 caracteres")
                 .MaximumLength(100)
                 .WithMessage("O nome deve ter no máximo 100 caracteres");
+
+           RuleFor(u => u.Nome)
+                .NotEmpty()
+                .WithMessage("O email do usuário é obrigatório")
+                .MinimumLength(2)
+                .WithMessage("O email deve ter pelo menos 2 caracteres")
+                .MaximumLength(100)
+                .WithMessage("O email deve ter no máximo 100 caracteres");
         }
     }
 }

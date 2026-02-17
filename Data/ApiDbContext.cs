@@ -22,6 +22,12 @@ namespace fin_api.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Usuario>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Ignore(u => u.ValidationResult);
+            });
+
             builder.Entity<UserHiddenCategory>(entity =>
             {
                 entity.HasKey(uhc => new { uhc.UserId, uhc.CategoryId });
