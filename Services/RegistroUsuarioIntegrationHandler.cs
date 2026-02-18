@@ -13,35 +13,47 @@ namespace fin_api.Services
     {
         private readonly IMessageBus _bus;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<RegistroUsuarioIntegrationHandler> _logger;
 
         public RegistroUsuarioIntegrationHandler
             (
                 IMessageBus bus,
-                IServiceScopeFactory scopeFactory
+                IServiceScopeFactory scopeFactory,
+                ILogger<RegistroUsuarioIntegrationHandler> logger
             )
         {
             _bus = bus;
             _scopeFactory = scopeFactory;
+            _logger = logger;
         }
 
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var disposable = 
-                await _bus.RespondAsync<UsuarioRegistradoIntegrationEvent, ResponseMessage>(RegistrarUsuario, stoppingToken);
+            _logger.LogInformation("Iniciando Consumer RegistroUsuario");
+
+            await _bus.RespondAsync<UsuarioRegistradoIntegrationEvent, ResponseMessage>(RegistrarUsuario, stoppingToken);
 
             await Task.CompletedTask;
+
+            _logger.LogInformation("Consumer registrado no RabbitMQ");
         }
 
         private async Task<ResponseMessage> RegistrarUsuario(UsuarioRegistradoIntegrationEvent usuarioMessage)
         {
+            _logger.LogInformation(
+                $"Mensagem recebida para registro de usuário {usuarioMessage.Nome}");
+
             var (_mapper, _usuarioService, _notificador) 
                 = ConfiguraDependencias(ConfiguraScopo());
 
             var usuario = _mapper.Map<Usuario>(usuarioMessage);
 
             if (!usuario.EhValido())
+            {
+                _logger.LogWarning("Usuário inválido");
                 return new ResponseMessage(usuario.ValidationResult);
+            }
 
             await _usuarioService.CriarUsuarioAsync(usuario);
 
@@ -49,6 +61,8 @@ namespace fin_api.Services
 
             if (_notificador.TemNotificacao())
             {
+                _logger.LogError($"Falha ao registrar usuario, erros: {notificacoes.ToString()}");
+
                 var validationResult = new ValidationResult(
                     notificacoes.Select(n => 
                         new ValidationFailure("Usuario", n.Mensagem))
@@ -56,6 +70,7 @@ namespace fin_api.Services
                 return new ResponseMessage(validationResult);
             }
 
+            _logger.LogInformation($"Usuário criado com sucesso {usuario.Id}");
             return new ResponseMessage(new ValidationResult());
         }
 

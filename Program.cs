@@ -16,6 +16,7 @@ builder
     .AddDbContextConfig()
     .AddCorsConfig()
     .AddIdentityConfig()
+    .AddSerilogConfig()
     .Services.AddAutoMapper(cfg =>
     {
         cfg.AddMaps(typeof(Program).Assembly);
