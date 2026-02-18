@@ -16,10 +16,17 @@ namespace fin_api.Data
         public DbSet<IconeCategoriaUsuario> IconeCategoriaUsuarios { get; set; }
         public DbSet<Cor> Cor { get; set; }
         public DbSet<CorCategoriaUsuario> CorCategoriaUsuarios { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Usuario>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Ignore(u => u.ValidationResult);
+            });
 
             builder.Entity<UserHiddenCategory>(entity =>
             {

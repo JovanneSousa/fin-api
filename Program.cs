@@ -1,5 +1,5 @@
 using fin_api.Configuration;
-using fin_api.Configuration.Mapper;
+using Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +20,9 @@ builder
     {
         cfg.AddMaps(typeof(Program).Assembly);
     });
+
+await builder.Services
+    .AddRabbitConfiguration(builder.Configuration);
 
 var app = builder.Build();
 
