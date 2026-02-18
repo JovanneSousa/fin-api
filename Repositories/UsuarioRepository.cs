@@ -17,6 +17,7 @@ namespace fin_api.Repositories
         public async Task<bool> CreateUsuarioAsync(Usuario usuario)
         {
             await _dbContext.Usuarios.AddAsync(usuario);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 
