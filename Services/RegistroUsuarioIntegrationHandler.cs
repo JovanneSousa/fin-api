@@ -42,10 +42,12 @@ namespace fin_api.Services
         private async Task<ResponseMessage> RegistrarUsuario(UsuarioRegistradoIntegrationEvent usuarioMessage)
         {
             _logger.LogInformation(
-                $"Mensagem recebida para registro de usuário {usuarioMessage.Nome}");
+                $"Mensagem recebida para registro de usuário: {usuarioMessage.Nome}");
+
+            var scope = _scopeFactory.CreateScope();
 
             var (_mapper, _usuarioService, _notificador) 
-                = ConfiguraDependencias(ConfiguraScopo());
+                = ConfiguraDependencias(ConfiguraScopo(scope));
 
             var usuario = _mapper.Map<Usuario>(usuarioMessage);
 
@@ -74,11 +76,8 @@ namespace fin_api.Services
             return new ResponseMessage(new ValidationResult());
         }
 
-        private IServiceProvider ConfiguraScopo()
-        {
-            using var scope = _scopeFactory.CreateScope();
-            return scope.ServiceProvider;
-        }
+        private IServiceProvider ConfiguraScopo(IServiceScope scope)
+            => scope.ServiceProvider;
 
         private (IMapper _mapper, IUsuarioService _usuarioSerivce, INotificador _notificador) 
             ConfiguraDependencias(IServiceProvider provider)
