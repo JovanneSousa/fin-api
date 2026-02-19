@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Messages.Integration;
 using fin_api.Models;
+using fin_api.DTOs;
 
 namespace fin_api.Configuration.Mapper
 {
@@ -10,6 +11,9 @@ namespace fin_api.Configuration.Mapper
         {
             CreateMap<Usuario, UsuarioRegistradoIntegrationEvent>();
             CreateMap<UsuarioRegistradoIntegrationEvent, Usuario>();
+
+            CreateMap<Usuario, UsuarioDTO>();
+            CreateMap<UsuarioDTO, Usuario>();
         }
     }
 }
