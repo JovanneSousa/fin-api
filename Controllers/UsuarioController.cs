@@ -24,6 +24,6 @@ namespace fin_api.Controllers
         [HttpGet]
         [ClaimsAuthorize("permission", "FIN:TRN_LER")]
         public async Task<ActionResult<UsuarioDTO>> GetUsuario()
-            => await _usuarioService.BuscarUsuarioPorIdAsync(UsuarioId);
+            => CustomResponse(await _usuarioService.BuscarUsuarioPorIdAsync(UsuarioId));
     }
 }
