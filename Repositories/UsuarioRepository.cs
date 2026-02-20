@@ -4,31 +4,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace fin_api.Repositories
 {
-    public class UsuarioRepository : IUsuarioRepository
+    public class UsuarioRepository : BasicRepository, IUsuarioRepository
     {
-        private readonly ApiDbContext _dbContext;
-
-        public UsuarioRepository(ApiDbContext dbContext)
+        public UsuarioRepository(ApiDbContext context) : base(context)
         {
-            _dbContext = dbContext;
         }
-
 
         public async Task<bool> CreateUsuarioAsync(Usuario usuario)
-        {
-            await _dbContext.Usuarios.AddAsync(usuario);
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
+            => await ExecuteAsync(async () =>
+            {
+                await _context.Usuarios.AddAsync(usuario);
+                await _context.SaveChangesAsync();
+                return true;
+            });
 
         public async Task<Usuario> GetUsuarioByIdAsync(string id)
-            => await _dbContext.Usuarios
-                .Where(u => u.Id == id)
-                .FirstOrDefaultAsync();
+            => await ExecuteAsync(
+                async () => await _context.Usuarios
+                                .Where(u => u.Id == id)
+                                .FirstOrDefaultAsync());
 
         public async Task<List<Usuario>> GetUsuariosAsync()
-            => await _dbContext.Usuarios
-                .AsNoTracking()
-                .ToListAsync();
+             => await ExecuteAsync(
+                async () => await _context.Usuarios
+                                .AsNoTracking()
+                                .ToListAsync());
+
     }
 }
