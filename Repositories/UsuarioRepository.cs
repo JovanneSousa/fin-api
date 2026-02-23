@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace fin_api.Repositories
 {
-    public class UsuarioRepository : BasicRepository, IUsuarioRepository
+    public class UsuarioRepository : BaseRepository, IUsuarioRepository
     {
         public UsuarioRepository(ApiDbContext context) : base(context)
         {

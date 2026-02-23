@@ -5,10 +5,10 @@ using Npgsql;
 
 namespace fin_api.Repositories
 {
-    public abstract class BasicRepository
+    public abstract class BaseRepository
     {
         protected readonly ApiDbContext _context;
-        protected BasicRepository(ApiDbContext context)
+        protected BaseRepository(ApiDbContext context)
         {
             _context = context;
         }

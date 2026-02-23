@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace fin_api.Repositories
 {
-    public class CategoriaRepository : BasicRepository, ICategoriaRepository
+    public class CategoriaRepository : BaseRepository, ICategoriaRepository
     {
         public CategoriaRepository(ApiDbContext context) : base(context)
         {
@@ -39,12 +39,12 @@ namespace fin_api.Repositories
                                 .AsNoTracking()
                                 .ToListAsync());
 
-        public async Task<bool> AddAsync(Categoria categoria)
+        public async Task<Categoria> AddAsync(Categoria categoria)
             => await ExecuteAsync(async () =>
             {
                 _context.Categories.Add(categoria);
                 await SaveChangesAsync();
-                return true;
+                return categoria;
             });
 
         public async Task<bool> UpdateAsync(Categoria categoria)

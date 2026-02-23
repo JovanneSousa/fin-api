@@ -7,7 +7,7 @@ using Npgsql;
 
 namespace fin_api.Repositories
 {
-    public class TransacaoRepository : BasicRepository, ITransacaoRepository
+    public class TransacaoRepository : BaseRepository, ITransacaoRepository
     {
         public TransacaoRepository(ApiDbContext context) : base(context)
         {
