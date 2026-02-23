@@ -7,16 +7,18 @@ using fin_api.Repositories;
 
 namespace fin_api.Services
 {
-    public class TransactionService : ITransacaoService
+    public class TransactionService : BaseService, ITransacaoService
     {
         private readonly ITransacaoRepository _repository;
-        private readonly INotificador _notificador;
         private readonly IMapper _mapper;
 
-        public TransactionService(ITransacaoRepository repository, INotificador notificador, IMapper mapper)
+        public TransactionService(
+            ITransacaoRepository repository, 
+            INotificador notificador, 
+            IMapper mapper) 
+            : base(notificador)
         {
             _repository = repository;
-            _notificador = notificador;
             _mapper = mapper;
         }
 
@@ -30,18 +32,27 @@ namespace fin_api.Services
                 1
             ).AddMonths(1).ToUniversalTime();
 
-            var totalReceita = await _repository.GetTotalReceitaAsync(userId);
-            var totalDespesa = await _repository.GetTotalDespesaAsync(userId, inicioProximoMes);
+            var totalReceita = await ExecuteAsync(
+                async () => await _repository.GetTotalReceitaAsync(userId)
+                );
+
+            var totalDespesa = await ExecuteAsync(
+                async () => await _repository.GetTotalDespesaAsync(userId, inicioProximoMes)
+                );
 
             return totalReceita - totalDespesa;
         }
 
         public async Task<IEnumerable<TransacaoDTO>> ListTransactionsAsync(string userId)
-            => _mapper.Map<IEnumerable<TransacaoDTO>>(await _repository.GetAllAsync(userId));
+            => _mapper.Map<IEnumerable<TransacaoDTO>>(await ExecuteAsync(
+                    async () => await _repository.GetAllAsync(userId)));
 
         public async Task<TransacaoDTO> GetTransactionAsync(string id, string userId)
         {
-            var transacao = await _repository.GetByIdAsync(id, userId);
+            var transacao = await ExecuteAsync(
+                async () => await _repository.GetByIdAsync(id, userId)
+                );
+
             if(transacao == null)
             {
                 _notificador.Handle(new Notificacao("Transação não existe!"));
@@ -69,7 +80,7 @@ namespace fin_api.Services
                 transacao.RecorrenciaEndDate = transacao.DataMovimentacao.AddMonths(11);
             }
 
-            if(!await _repository.AddAsync(transacao))
+            if(!await ExecuteAsync(async () => await _repository.AddAsync(transacao)))
             {
                 _notificador.Handle(new Notificacao("Falha ao salvar transação!"));
                 return null;
@@ -87,7 +98,7 @@ namespace fin_api.Services
 
         public async Task<TransacaoDTO> UpdateTransactionAsync(string id, TransacaoDTO transacaoDTO, string userId)
         { 
-            var existente = await _repository.GetByIdAsync(id, userId);
+            var existente = await ExecuteAsync(async () => await _repository.GetByIdAsync(id, userId));
             if (existente == null)
             {
                 _notificador.Handle(new Notificacao("Transação não encontrada!"));
@@ -125,10 +136,10 @@ namespace fin_api.Services
             existente.Titulo = transacaoDTO.Titulo;
             existente.Valor = transacaoDTO.Valor;
             existente.CategoriaId = transacaoDTO.CategoriaId;
-            existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
+            existente.DataMovimentacao = transacaoDTO.DataMovimentacao.ToUniversalTime();
 
             // Atualiza somente dados basicos
-            if(!await _repository.UpdateAsync(existente))
+            if(!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
             {
                 _notificador.Handle(new Notificacao("Falha ao atualizar transação!"));
                 return null;
@@ -136,37 +147,11 @@ namespace fin_api.Services
 
             return _mapper.Map<TransacaoDTO>(existente);
         }
-
-        private async Task<TransacaoDTO> TransformaEmRecorrente(Transacao existente, TransacaoDTO transacaoDTO)
-        {
-            existente.IsRecurring = true;
-            existente.RecorrenciaType = RecorrenciaType.Mensalmente;
-            existente.RecorrenciaEndDate = transacaoDTO.DataMovimentacao.AddMonths(12);
-
-            existente.Titulo = transacaoDTO.Titulo;
-            existente.Valor = transacaoDTO.Valor;
-            existente.CategoriaId = transacaoDTO.CategoriaId;
-            existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
-
-            if (!await _repository.UpdateAsync(existente))
-            {
-                _notificador.Handle(new Notificacao("Houve um erro ao atualizar a transação!"));
-                return null;
-            };
-
-            if (existente.Type == TransacaoType.Renda)
-                if (!await GerarRecorrencias(existente)) return null;
-
-            if (existente.Type == TransacaoType.Despesa)
-                if (!await GerarParcelas(existente)) return null;
-
-            return _mapper.Map<TransacaoDTO>(existente);
-        }
-
         public async Task<bool> DeleteTransactionAsync(string id, string usuarioId)
         {
 
-            var existing = await _repository.GetByIdAsync(id, usuarioId);
+            var existing = await ExecuteAsync(
+                async () => await _repository.GetByIdAsync(id, usuarioId));
             if (existing == null) 
             {
                 _notificador.Handle(new Notificacao("Transação não encontrada!"));
@@ -185,7 +170,7 @@ namespace fin_api.Services
                     return false;
                 }
 
-            if(!await _repository.DeleteAsync(existing))
+            if(!await ExecuteAsync(async () => await _repository.DeleteAsync(existing)))
             {
                 _notificador.Handle(new Notificacao("Houve um problema ao excluir a transação!"));
                 return false;
@@ -213,7 +198,9 @@ namespace fin_api.Services
 
             var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(start.Date);
             var fimUtc = TimeZoneInfo.ConvertTimeToUtc(end.Date.AddDays(1).AddTicks(-1));
-            var transacoes = await _repository.GetByPeriodAsync(userId, inicioUtc, fimUtc);
+            var transacoes = await ExecuteAsync(
+                async () => await _repository.GetByPeriodAsync(userId, inicioUtc, fimUtc)
+                );
 
             var result = _mapper.Map<IEnumerable<TransacaoDTO>>(transacoes);
             if(result is null)
@@ -224,6 +211,33 @@ namespace fin_api.Services
 
             return result;
         }
+
+        private async Task<TransacaoDTO> TransformaEmRecorrente(Transacao existente, TransacaoDTO transacaoDTO)
+        {
+            existente.IsRecurring = true;
+            existente.RecorrenciaType = RecorrenciaType.Mensalmente;
+            existente.RecorrenciaEndDate = transacaoDTO.DataMovimentacao.AddMonths(12);
+
+            existente.Titulo = transacaoDTO.Titulo;
+            existente.Valor = transacaoDTO.Valor;
+            existente.CategoriaId = transacaoDTO.CategoriaId;
+            existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
+
+            if (!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
+            {
+                _notificador.Handle(new Notificacao("Houve um erro ao atualizar a transação!"));
+                return null;
+            };
+
+            if (existente.Type == TransacaoType.Renda)
+                if (!await GerarRecorrencias(existente)) return null;
+
+            if (existente.Type == TransacaoType.Despesa)
+                if (!await GerarParcelas(existente)) return null;
+
+            return _mapper.Map<TransacaoDTO>(existente);
+        }
+
 
         private async Task<TransacaoDTO> TransformaRecorrenciaEmUnica(Transacao existente, TransacaoDTO transacaoDTO)
         {
@@ -247,7 +261,7 @@ namespace fin_api.Services
             if (existente.Type == TransacaoType.Despesa && existente.Parcelas > 1)
                 existente.Valor = Math.Round(existente.Valor * existente.Parcelas.Value, 2);
 
-            if (!await _repository.UpdateAsync(existente))
+            if (!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
             {
                 _notificador.Handle(new Notificacao("Houve um erro ao atualizar a transação!"));
                 return null;
@@ -271,7 +285,7 @@ namespace fin_api.Services
                 return true;
             }
 
-            if (!await _repository.AddRangeAsync(transactions))
+            if (!await ExecuteAsync(async () => await _repository.AddRangeAsync(transactions)))
             {
                 _notificador.Handle(new Notificacao("Houve um erro ao salvar as recorrências!"));
                 return true;
@@ -288,7 +302,7 @@ namespace fin_api.Services
             existente.DataMovimentacao = novosDados.DataMovimentacao;
             existente.RecorrenciaType = RecorrenciaType.Mensalmente;
 
-            if(!await _repository.UpdateAsync(existente))
+            if(!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
             {
                 _notificador.Handle(new Notificacao("Falha ao atualizar base!"));
                 return false;
@@ -315,12 +329,12 @@ namespace fin_api.Services
 
         private async Task<bool> RemoverRecorrencias(string parentId)
         {
-            var filhos = await _repository.GetByParentTransactionId(parentId);
+            var filhos = await ExecuteAsync(async () => await _repository.GetByParentTransactionId(parentId));
 
             if (!filhos.Any())
                 return true;
 
-            return await _repository.RemoveRangeAsync(filhos);
+            return await ExecuteAsync(async () => await _repository.RemoveRangeAsync(filhos));
         }
 
         private async Task<bool> GerarParcelas(Transacao origem)
@@ -339,7 +353,7 @@ namespace fin_api.Services
             origem.Titulo = $"{nomeOriginal} (1/{parcelas})";
             origem.Valor = valorParcela;
 
-            if(!await _repository.UpdateAsync(origem))
+            if(!await ExecuteAsync(async () => await _repository.UpdateAsync(origem)))
             {
                 _notificador.Handle(new Notificacao("Houve um erro ao atualizar o a parcela base"));
                 return false;
@@ -358,7 +372,7 @@ namespace fin_api.Services
                 return false;
             }
 
-            if(!await _repository.AddRangeAsync(list))
+            if(!await ExecuteAsync(async () => await _repository.AddRangeAsync(list)))
             {
                 _notificador.Handle(new Notificacao("Houve um erro ao salvar as parcelas"));
                 return false;

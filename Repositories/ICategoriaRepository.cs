@@ -6,7 +6,7 @@ namespace fin_api.Repositories
     {
         Task<Categoria> GetByIdAsync(string id, string userId); 
         Task<IEnumerable<Categoria>> GetAllAsync(string userId);
-        Task<bool> AddAsync(Categoria categoria);
+        Task<Categoria> AddAsync(Categoria categoria);
         Task<bool> UpdateAsync(Categoria categoria);
         Task<bool> DeleteAsync(Categoria categoria);
         Task<bool> ExistsAsync(string userId, string name);
