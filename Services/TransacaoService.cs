@@ -136,7 +136,7 @@ namespace fin_api.Services
             existente.Titulo = transacaoDTO.Titulo;
             existente.Valor = transacaoDTO.Valor;
             existente.CategoriaId = transacaoDTO.CategoriaId;
-            existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
+            existente.DataMovimentacao = transacaoDTO.DataMovimentacao.ToUniversalTime();
 
             // Atualiza somente dados basicos
             if(!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
