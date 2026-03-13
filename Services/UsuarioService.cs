@@ -6,10 +6,9 @@ using fin_api.Repositories;
 
 namespace fin_api.Services
 {
-    public class UsuarioService : IUsuarioService
+    public class UsuarioService : BaseService, IUsuarioService
     {
         private readonly IUsuarioRepository _usuarioRepository;
-        private readonly INotificador _notificador;
         private readonly IMapper _mapper;
 
         public UsuarioService(
@@ -17,15 +16,18 @@ namespace fin_api.Services
             INotificador notificador,
             IMapper mapper
             )
+            : base(notificador)
         {
             _usuarioRepository = usuarioRepository;
-            _notificador = notificador;
             _mapper = mapper;
         }
 
         public async Task<bool> CriarUsuarioAsync(Usuario usuario)
         {
-            var result = await _usuarioRepository.CreateUsuarioAsync(usuario);
+            var result = await ExecuteAsync(
+                async () => await _usuarioRepository.CreateUsuarioAsync(usuario)
+                );
+
             if(!result)
             {
                 _notificador.Handle(new Notificacao("Erro ao salvar usuario!"));
@@ -36,7 +38,9 @@ namespace fin_api.Services
 
         public async Task<UsuarioDTO> BuscarUsuarioPorIdAsync(string id)
         {
-            var user = await _usuarioRepository.GetUsuarioByIdAsync(id);
+            var user = await ExecuteAsync(
+                async () => await _usuarioRepository.GetUsuarioByIdAsync(id)
+                );
             if(user == null)
             {
                 _notificador.Handle(new Notificacao("Usuario não encontrado!"));
