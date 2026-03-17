@@ -12,9 +12,24 @@ namespace fin_api.Configuration
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "Fin Api",
-                    Version = "v1"
+                    Title = "FinControl API",
+                    Version = "v1",
+                    Description = "API de controle financeiro pessoal. Permite gerenciar categorias, transações e perfis de usuário.",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Jovane Sousa",
+                        Email = "jovanemaciel943@gmail.com"
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "MIT",
+                        Url = new Uri("https://opensource.org/licenses/MIT")
+                    }
                 });
+
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

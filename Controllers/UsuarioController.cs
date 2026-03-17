@@ -21,8 +21,16 @@ namespace fin_api.Controllers
             _usuarioService = usuarioService;
         }
 
+        /// <summary>
+        /// Obtém os dados do perfil do usuário autenticado.
+        /// </summary>
+        /// <returns>Os dados do usuário.</returns>
+        /// <response code="200">Retorna o perfil do usuário.</response>
+        /// <response code="404">Se o usuário não for encontrado.</response>
         [HttpGet]
         [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ProducesResponseType(typeof(UsuarioDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UsuarioDTO>> GetUsuario()
             => CustomResponse(await _usuarioService.BuscarUsuarioPorIdAsync(UsuarioId));
     }
