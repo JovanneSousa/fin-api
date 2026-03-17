@@ -1,5 +1,6 @@
 using fin_api.Configuration;
 using Configuration;
+using fin_api.Configuration.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 

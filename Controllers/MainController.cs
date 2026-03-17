@@ -1,4 +1,5 @@
-﻿using fin_api.Extensions;
+﻿using fin_api.DTOs;
+using fin_api.Extensions;
 using fin_api.Notificacoes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -32,28 +33,23 @@ namespace fin_api.Controllers
             return !_notificador.TemNotificacao();
         }
 
-        protected ActionResult CustomResponse(object result = null)
+        protected ActionResult<T> CustomResponse<T>(T result = default)
         {
             if (OperacaoValida())
             {
-                return Ok(new
-                {
-                    success = true,
-                    data = result
-                });
+                return Ok(new ResponseSuccessDTO<T>(true, result));
             }
 
-            return BadRequest(new
-            {
-                success = false,
-                errors = _notificador.ObterNotificacoes().Select(n => n.Mensagem)
-            });
+            return BadRequest(new ResponseErrorDTO(
+                false,
+                _notificador.ObterNotificacoes().Select(n => n.Mensagem))
+            );
         }
 
-        protected ActionResult CustomResponse(ModelStateDictionary modelState)
+        protected ActionResult<object> CustomResponse(ModelStateDictionary modelState)
         {
             if (!modelState.IsValid) NotificarErroModelInvalida(modelState);
-            return CustomResponse();
+            return CustomResponse<object>();
         }
 
         protected void NotificarErroModelInvalida(ModelStateDictionary modelState)

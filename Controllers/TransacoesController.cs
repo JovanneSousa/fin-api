@@ -29,7 +29,8 @@ namespace fin_api.Controllers
         /// <response code="200">Retorna o saldo atual.</response>
         [HttpGet("saldo")]
         [ClaimsAuthorize("permission", "FIN:TRN_LER")]
-        [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<decimal>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<decimal>> GetSaldoAtual() =>
             CustomResponse(await _transacaoService.GetSaldoTotalAsync(UsuarioId));
 
@@ -39,7 +40,8 @@ namespace fin_api.Controllers
         /// <returns>Uma lista de transações.</returns>
         /// <response code="200">Retorna a lista de transações.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<TransacaoDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<IEnumerable<TransacaoDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TransacaoDTO>>> GetTransacoes() =>
             CustomResponse(await _transacaoService.ListTransactionsAsync(UsuarioId));
 
@@ -52,7 +54,8 @@ namespace fin_api.Controllers
         /// <response code="200">Retorna a lista de transações filtradas.</response>
         [HttpGet("periodo")]
         [ClaimsAuthorize("permission", "FIN:TRN_LER")]
-        [ProducesResponseType(typeof(IEnumerable<TransacaoDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<IEnumerable<TransacaoDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TransacaoDTO>>> FiltrarTransacoes(
             [FromQuery] DateTime? startDate,
             [FromQuery] DateTime? endDate)
@@ -71,9 +74,9 @@ namespace fin_api.Controllers
         /// <response code="400">Se houver erros nos dados enviados.</response>
         [HttpPost("novo")]
         [ClaimsAuthorize("permission", "FIN:TRN_CRIAR")]
-        [ProducesResponseType(typeof(Transacao), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Post([FromBody] Transacao transacao)
+        [ProducesResponseType(typeof(ResponseSuccessDTO<Transacao>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Transacao>> Post([FromBody] Transacao transacao)
             => CustomResponse(await _transacaoService.CreateTransactionAsync(transacao, UsuarioId));
 
         /// <summary>
@@ -85,9 +88,10 @@ namespace fin_api.Controllers
         /// <response code="404">Se a transação não for encontrada.</response>
         [HttpDelete("{id}")]
         [ClaimsAuthorize("permission", "FIN:TRN_EXCLUIR")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<bool>),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(string id) =>
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<bool>> Delete(string id) =>
             CustomResponse(await _transacaoService.DeleteTransactionAsync(id, UsuarioId));
 
         /// <summary>
@@ -99,9 +103,10 @@ namespace fin_api.Controllers
         /// <response code="404">Se a transação não for encontrada.</response>
         [HttpGet("{id}")]
         [ClaimsAuthorize("permission", "FIN:TRN_LER")]
-        [ProducesResponseType(typeof(Transacao), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<TransacaoDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Transacao>> GetById(string id) =>
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<TransacaoDTO>> GetById(string id) =>
             CustomResponse(await _transacaoService.GetTransactionAsync(id, UsuarioId));
 
         /// <summary>
@@ -114,8 +119,8 @@ namespace fin_api.Controllers
         /// <response code="400">Se houver erros nos dados enviados.</response>
         [HttpPut("{id}")]
         [ClaimsAuthorize("permission", "FIN:TRN_EDITAR")]
-        [ProducesResponseType(typeof(TransacaoDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<TransacaoDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TransacaoDTO>> Update(string id, [FromBody] TransacaoDTO transacao)
             => CustomResponse(await _transacaoService.UpdateTransactionAsync(id, transacao, UsuarioId));
 

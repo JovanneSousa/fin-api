@@ -1,7 +1,6 @@
-﻿
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 
-namespace fin_api.Configuration
+namespace fin_api.Configuration.Swagger
 {
     public static class SwaggerConfig
     {
@@ -30,6 +29,8 @@ namespace fin_api.Configuration
                 var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+
+                c.OperationFilter<AuthResponsesOperationFilter>();
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

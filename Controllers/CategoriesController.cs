@@ -31,8 +31,9 @@ namespace fin_api.Controllers
         /// <response code="404">Se a categoria não for encontrada.</response>
         [HttpGet("{id}")]
         [ClaimsAuthorize("permission", "FIN:CTG_LER")]
-        [ProducesResponseType(typeof(CategoriaDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<CategoriaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CategoriaDTO>> ObterCategoriaPorId(string id)
             => CustomResponse(await _categoriaService.ObterCategoriaId(id, UsuarioId));
 
@@ -44,6 +45,7 @@ namespace fin_api.Controllers
         [HttpGet]
         [ClaimsAuthorize("permission", "FIN:CTG_LER")]
         [ProducesResponseType(typeof(IEnumerable<CategoriaDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> ListarCategorias() 
             => CustomResponse(await _categoriaService.ListCategoriasAsync(UsuarioId));
 
@@ -55,6 +57,7 @@ namespace fin_api.Controllers
         [HttpGet("icones")]
         [ClaimsAuthorize("permission", "FIN:CTG_LER")]
         [ProducesResponseType(typeof(IEnumerable<IconDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<IconDTO>>> ListarIcones()
             => CustomResponse(await _categoriaService.ListarIconesAsync());
 
@@ -65,8 +68,9 @@ namespace fin_api.Controllers
         /// <response code="200">Retorna a lista de cores.</response>
         [HttpGet("cores")]
         [ClaimsAuthorize("permission", "FIN:CTG_LER")]
-        [ProducesResponseType(typeof(IEnumerable<IconDTO>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<IconDTO>>> ListarCores()
+        [ProducesResponseType(typeof(IEnumerable<CorDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<CorDTO>>> ListarCores()
             => CustomResponse(await _categoriaService.ListarCoresAsync());
 
         /// <summary>
@@ -79,8 +83,8 @@ namespace fin_api.Controllers
         [HttpPost]
         [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
         [ProducesResponseType(typeof(CategoriaDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Cadastrar([FromBody] CategoriaDTO categoria)
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CategoriaDTO>> Cadastrar([FromBody] CategoriaDTO categoria)
             => CustomResponse(await _categoriaService.CreateCategoriaAsync(UsuarioId, categoria));
 
         /// <summary>
@@ -94,7 +98,7 @@ namespace fin_api.Controllers
         [HttpPut("atualizar/{id}")]
         [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
         [ProducesResponseType(typeof(CategoriaDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CategoriaDTO>> AtualizarCategoria([FromBody] CategoriaUpdateDTO categoria, string id)
             => CustomResponse(await _categoriaService.AtualizarCategoria(categoria, UsuarioId, id));
 
@@ -107,9 +111,10 @@ namespace fin_api.Controllers
         /// <response code="404">Se a categoria não for encontrada ou não puder ser excluída.</response>
         [HttpDelete("{id}")]
         [ClaimsAuthorize("permission", "FIN:CTG_EXCLUIR")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<bool>),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Deletar(string id)
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<bool>> Deletar(string id)
             => CustomResponse(!await _categoriaService.DeleteCategoriaAsync(UsuarioId, id));
     }
 }

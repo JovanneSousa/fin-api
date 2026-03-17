@@ -29,8 +29,9 @@ namespace fin_api.Controllers
         /// <response code="404">Se o usuário não for encontrado.</response>
         [HttpGet]
         [ClaimsAuthorize("permission", "FIN:TRN_LER")]
-        [ProducesResponseType(typeof(UsuarioDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<UsuarioDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UsuarioDTO>> GetUsuario()
             => CustomResponse(await _usuarioService.BuscarUsuarioPorIdAsync(UsuarioId));
     }
