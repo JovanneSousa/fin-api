@@ -32,15 +32,8 @@ namespace fin_api.Services
                 1
             ).AddMonths(1).ToUniversalTime();
 
-            var totalReceita = await ExecuteAsync(
-                async () => await _repository.GetTotalReceitaAsync(userId)
-                );
-
-            var totalDespesa = await ExecuteAsync(
-                async () => await _repository.GetTotalDespesaAsync(userId, inicioProximoMes)
-                );
-
-            return totalReceita - totalDespesa;
+            return await ExecuteAsync(
+                async() => await _repository.GetSaldoTotal(userId, inicioProximoMes));
         }
 
         public async Task<IEnumerable<TransacaoDTO>> ListTransactionsAsync(string userId)
@@ -210,6 +203,31 @@ namespace fin_api.Services
             }
 
             return result;
+        }
+
+        public async Task<IEnumerable<SaldoMensalDTO>> GetValuesByMonth(string userId, DateTime? startDate, DateTime? endDate)
+        {
+            if (startDate is null || endDate is null)
+            {
+                _notificador.Handle(new Notificacao("As datas iniciais e finais são obrigatórias!"));
+                return null;
+            }
+
+            var start = startDate.Value;
+            var end = endDate.Value;
+
+            if (start > end)
+            {
+                _notificador.Handle(new Notificacao("A data de fim deve ser maior que a data de início!"));
+                return null;
+            }
+
+            var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(start.Date);
+            var fimUtc = TimeZoneInfo.ConvertTimeToUtc(end.Date.AddDays(1).AddTicks(-1));
+            
+            return await ExecuteAsync(
+                async () => await _repository.GetValuesByMonth(userId, inicioUtc, fimUtc)
+                );
         }
 
         private async Task<TransacaoDTO> TransformaEmRecorrente(Transacao existente, TransacaoDTO transacaoDTO)
