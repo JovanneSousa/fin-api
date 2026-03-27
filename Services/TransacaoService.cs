@@ -32,15 +32,8 @@ namespace fin_api.Services
                 1
             ).AddMonths(1).ToUniversalTime();
 
-            var totalReceita = await ExecuteAsync(
-                async () => await _repository.GetTotalReceitaAsync(userId)
-                );
-
-            var totalDespesa = await ExecuteAsync(
-                async () => await _repository.GetTotalDespesaAsync(userId, inicioProximoMes)
-                );
-
-            return totalReceita - totalDespesa;
+            return await ExecuteAsync(
+                async() => await _repository.GetSaldoTotal(userId, inicioProximoMes));
         }
 
         public async Task<IEnumerable<TransacaoDTO>> ListTransactionsAsync(string userId)
