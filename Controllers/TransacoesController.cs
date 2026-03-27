@@ -66,6 +66,26 @@ namespace fin_api.Controllers
             ));
 
         /// <summary>
+        /// Obtém os valores de receita e despesa agrupados por mês de um certo período
+        /// </summary>
+        /// <param name="startDate">Data de início do período.</param>
+        /// <param name="endDate">Data de fim do período.</param>
+        /// <returns>Uma lista de receita e despesas agrupadas por mês.</returns>
+        /// <response code="200">Retorna a lista de receitas e despesas agrupadas.</response>
+        [HttpGet("saldo-mes")]
+        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ProducesResponseType(typeof(ResponseSuccessDTO<IEnumerable<SaldoMensalDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<SaldoMensalDTO>>> ObterReceitaDespesaPorMes(
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate)
+            => CustomResponse(await _transacaoService.GetValuesByMonth(
+                UsuarioId,
+                startDate,
+                endDate
+            ));
+
+        /// <summary>
         /// Cria uma nova transação financeira.
         /// </summary>
         /// <param name="transacao">Os dados da transação a ser criada.</param>
