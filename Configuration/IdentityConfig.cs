@@ -3,6 +3,7 @@ using fin_api.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using NetDevPack.Security.JwtExtensions;
 using System.Text;
 
 namespace fin_api.Configuration
@@ -20,10 +21,8 @@ namespace fin_api.Configuration
                 builder.Configuration.GetSection("JwtSettings"));   
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-            if (string.IsNullOrEmpty(jwtSettings?.Segredo))
-                throw new InvalidOperationException("Segredo JWT não configurado.");
-
-            var key = Encoding.ASCII.GetBytes(jwtSettings.Segredo);
+            if (string.IsNullOrEmpty(jwtSettings?.AutenticacaoJwksUrl))
+                throw new InvalidOperationException("Url JWT não configurado.");
 
             builder.Services.AddAuthentication(o =>
             {
@@ -31,17 +30,11 @@ namespace fin_api.Configuration
                 o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o =>
             {
-                o.RequireHttpsMetadata = true;
+                o.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
                 o.SaveToken = true;
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = jwtSettings.Audiencia,
-                    ValidIssuer = jwtSettings.Emissor
-                };
+                o.SetJwksOptions(new JwkOptions(jwtSettings.AutenticacaoJwksUrl + "/jwks", jwtSettings.AutenticacaoJwksUrl));
             });
+
 
             return builder;
         }
