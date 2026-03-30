@@ -2,9 +2,7 @@
 using fin_api.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.JwtExtensions;
-using System.Text;
 
 namespace fin_api.Configuration
 {
@@ -14,16 +12,12 @@ namespace fin_api.Configuration
         {
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApiDbContext>();
-
-            // Pegando o token e gerando chave encodada
-            builder.Services.Configure<JwtSettings>(
-                builder.Configuration.GetSection("JwtSettings"));   
+                .AddEntityFrameworkStores<ApiDbContext>();  
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-            Console.WriteLine(jwtSettings.AutenticacaoJwksUrl);
             if (string.IsNullOrEmpty(jwtSettings?.AutenticacaoJwksUrl))
                 throw new InvalidOperationException("Url JWT não configurado.");
+            var issuer = jwtSettings.Issuer ?? jwtSettings.AutenticacaoJwksUrl;
 
             builder.Services.AddAuthentication(o =>
             {
@@ -33,7 +27,7 @@ namespace fin_api.Configuration
             {
                 o.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
                 o.SaveToken = true;
-                o.SetJwksOptions(new JwkOptions(jwtSettings.AutenticacaoJwksUrl + "/jwks", jwtSettings.AutenticacaoJwksUrl));
+                o.SetJwksOptions(new JwkOptions($"{jwtSettings.AutenticacaoJwksUrl}/jwks", issuer));
             });
 
 
