@@ -21,6 +21,7 @@ namespace fin_api.Configuration
                 builder.Configuration.GetSection("JwtSettings"));   
 
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+            Console.WriteLine(jwtSettings.AutenticacaoJwksUrl);
             if (string.IsNullOrEmpty(jwtSettings?.AutenticacaoJwksUrl))
                 throw new InvalidOperationException("Url JWT não configurado.");
 
