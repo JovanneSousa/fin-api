@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>fin_api</RootNamespace>
     <UserSecretsId>c0851c9e-7aa5-45de-86bb-f9d2876d85bf</UserSecretsId>
@@ -11,27 +11,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="AutoMapper" Version="16.0.0" />
+	  <PackageReference Include="AutoMapper" Version="16.1.1" />
 	  <PackageReference Include="FluentValidation" Version="12.1.1" />
-	  <PackageReference Include="Jovane.MessageBus" Version="1.0.3" />
-	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
-	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+	  <PackageReference Include="Jovane.MessageBus" Version="1.0.6" />
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.7" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">
 		<PrivateAssets>all</PrivateAssets>
 		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	 </PackageReference>
-	 <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
+	 <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.7">
 		<PrivateAssets>all</PrivateAssets>
 		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
 	 <PackageReference Include="NetDevPack.Security.JwtExtensions" Version="9.0.1" />
-	 <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+	 <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
 	 <PackageReference Include="Serilog" Version="4.3.1" />
 	 <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
 	 <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
 	 <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
 	 <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-	 <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+	 <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
   </ItemGroup>
 
   <ItemGroup>
