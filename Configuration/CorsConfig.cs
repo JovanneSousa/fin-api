@@ -8,12 +8,12 @@
                 .GetSection("MEU_APP")
                 .GetChildren()
                 .Select(x => x.Value)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x!)
                 .ToArray();
 
-            if (allowedOrigin == null || allowedOrigin.Length == 0)
+            if (allowedOrigin is null || allowedOrigin.Length == 0)
                 throw new InvalidOperationException("Nenhuma origem configurada em 'MEU_APP'");
-
-            Console.WriteLine(allowedOrigin);
 
             builder.Services.AddCors(o =>
             {

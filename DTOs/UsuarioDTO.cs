@@ -2,8 +2,8 @@
 {
     public class UsuarioDTO
     {
-        public string Id { get; set; }
-        public string Nome { get; set; }
-        public string Email { get; set; }
+        public required string Id { get; set; }
+        public required string Nome { get; set; }
+        public required string Email { get; set; }
     }
 }

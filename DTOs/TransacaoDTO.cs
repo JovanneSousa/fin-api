@@ -11,47 +11,47 @@ namespace fin_api.DTOs
         /// <summary>
         /// Identificador único da transação.
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
 
         /// <summary>
         /// ID do usuário ao qual a transação pertence.
         /// </summary>
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
 
         /// <summary>
         /// Tipo da transação (Receita ou Despesa).
         /// </summary>
-        public TransacaoType Type { get; set; }
+        public required TransacaoType Type { get; set; }
 
         /// <summary>
         /// Descrição ou título da transação.
         /// </summary>
-        public string Titulo { get; set; }
+        public required string Titulo { get; set; }
 
         /// <summary>
         /// Valor monetário da transação.
         /// </summary>
-        public decimal Valor { get; set; }
+        public required decimal Valor { get; set; }
 
         /// <summary>
         /// ID da categoria associada a esta transação.
         /// </summary>
-        public string CategoriaId { get; set; }
+        public required string CategoriaId { get; set; }
 
         /// <summary>
         /// Detalhes da categoria.
         /// </summary>
-        public CategoriaDTO Categoria { get; set; }
+        public required CategoriaDTO Categoria { get; set; }
 
         /// <summary>
         /// Data em que a transação ocorreu.
         /// </summary>
-        public DateTime DataMovimentacao { get; set; }
+        public required DateTime DataMovimentacao { get; set; }
 
         /// <summary>
         /// Indica se a transação é recorrente.
         /// </summary>
-        public bool IsRecurring { get; set; }
+        public required bool IsRecurring { get; set; }
 
         /// <summary>
         /// Tipo de recorrência (Mensal, Semanal, etc.).

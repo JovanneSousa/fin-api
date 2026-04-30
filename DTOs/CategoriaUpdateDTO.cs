@@ -4,9 +4,9 @@ namespace fin_api.DTOs
 {
     public class CategoriaUpdateDTO
     {
-        public string? Name { get; set; }
-        public TransacaoType? Type { get; set; }
-        public string? IconId { get; set; }
-        public string? CorId { get; set; }
+        public required string Name { get; set; }
+        public required TransacaoType Type { get; set; }
+        public required string IconId { get; set; }
+        public required string CorId { get; set; }
     }
 }
