@@ -1,11 +1,36 @@
+# FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# WORKDIR /src
+
+# COPY ./fin-api.csproj .
+# RUN dotnet restore
+
+# COPY . .
+# RUN dotnet publish -c Release -o /app/publish --no-restore
+
+# FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+# WORKDIR /app
+
+# COPY --from=build /app/publish .
+
+# ENV ASPNETCORE_ENVIRONMENT=Production
+
+# EXPOSE 8080
+
+# ENTRYPOINT ["dotnet", "fin-api.dll"]
+
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ./fin-api.csproj .
-RUN dotnet restore
+COPY ./Src/Fin.Api/Fin.Api.csproj ./Src/Fin.Api/
+
+RUN dotnet restore ./Src/Fin.Api/Fin.Api.csproj
 
 COPY . .
-RUN dotnet publish -c Release -o /app/publish --no-restore
+
+RUN dotnet publish ./Src/Fin.Api/Fin.Api.csproj \
+    -c Release \
+    -o /app/publish \
+    --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
@@ -16,4 +41,4 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "fin-api.dll"]
+ENTRYPOINT ["dotnet", "Fin.Api.dll"]
