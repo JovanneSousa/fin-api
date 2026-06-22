@@ -1,6 +1,7 @@
 using Configuration;
 using Fin.Api.Configuration;
 using Fin.Api.Configuration.Swagger;
+using Fin.Application.Mapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,7 @@ builder
     .AddSerilogConfig()
     .Services.AddAutoMapper(cfg =>
     {
-        cfg.AddMaps(typeof(Program).Assembly);
+        cfg.AddMaps(typeof(ApplicationAssemblyMarker).Assembly);
     });
 
 await builder.Services
