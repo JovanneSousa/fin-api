@@ -21,13 +21,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ./Src/Fin.Api/Fin.Api.csproj ./Src/Fin.Api/
+COPY ./Src/Fin.API/Fin.API.csproj ./Src/Fin.API/
 
-RUN dotnet restore ./Src/Fin.Api/Fin.Api.csproj
+RUN dotnet restore ./Src/Fin.API/Fin.API.csproj
 
 COPY . .
 
-RUN dotnet publish ./Src/Fin.Api/Fin.Api.csproj \
+RUN dotnet publish ./Src/Fin.API/Fin.API.csproj \
     -c Release \
     -o /app/publish \
     --no-restore
