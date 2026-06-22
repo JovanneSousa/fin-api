@@ -43,50 +43,46 @@ namespace Fin.Application.Services
 
         public async Task<CategoriaDTO> CreateCategoriaAsync(string userId, CategoriaDTO categoria)
         {
-            var exists = await ExecuteAsync(
-                async() => await _repository.ExistsAsync(userId, categoria.Name)
+            var category = await ExecuteAsync(
+                async() => await _repository.GetCategoryByNameAndUserIdAsync(userId, categoria.Name)
                 );
+
+            if(category is null)
+            {
+                categoria.UserId = userId;
+                var created = await ExecuteAsync(
+                    async () => await _repository.AddAsync(categoria.ToDomain())
+                    );
+
+                if (created == null)
+                {
+                    _notificador.Handle(new Notificacao("Ocorreu um erro ao criar categoria"));
+                    return null;
+                }
+
+                return CategoriaDTO.ToDto(created);
+            }
+
 
             var isHidden = await ExecuteAsync(
-                async () => await _repository.IsCategoryHiddenAsync(userId, categoria.Name)
+                async () => await _repository.IsCategoryHiddenAsync(userId, categoria.Id)
                 );
 
-            if (exists && !isHidden)
+            if (!isHidden)
             {
                 _notificador.Handle(new Notificacao("Categoria já existe para este usuário."));
                 return null;
             }
-
-            if(exists && isHidden)
+            if (category == null)
             {
-                var categoriesDTO = await ExecuteAsync(
-                    async () => await _repository.GetAllAsync(userId)
-                    );
-
-                var categories = CategoriaDTO.ToDomainList(categoriesDTO);
-
-                var toUnhide = categories.FirstOrDefault(c => c.Name.ToLower() == categoria.Name.ToLower() && c.IsDefault);
-                if (toUnhide != null)
-                {
-                    await ExecuteAsync(
-                        async () => await _repository.ShowHiddenCategory(userId, toUnhide)
-                        );
-                    return _mapper.Map<CategoriaDTO>(toUnhide);
-                }
-            }
-
-            categoria.UserId = userId;
-            var result = await ExecuteAsync(
-                async () => await _repository.AddAsync(categoria.ToDomain())
-                );
-
-            if(result == null)
-            {
-                _notificador.Handle(new Notificacao("Ocorreu um erro ao criar categoria"));
+                _notificador.Handle(new Notificacao("Falha ao encontrar categoria"));
                 return null;
             }
+            await ExecuteAsync(
+                async () => await _repository.ShowHiddenCategory(userId, category)
+                );
 
-            return CategoriaDTO.ToDto(result);
+            return CategoriaDTO.ToDto(category);
         }
 
         public async Task<bool> DeleteCategoriaAsync(string userId, string categoriaId)

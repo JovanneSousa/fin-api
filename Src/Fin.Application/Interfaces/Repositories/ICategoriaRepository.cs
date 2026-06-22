@@ -7,11 +7,11 @@ namespace Fin.Application.Interfaces.Repositories
     {
         // Categorias
         Task<Categoria> GetByIdAsync(string id, string userId);
+        Task<Categoria> GetCategoryByNameAndUserIdAsync(string userId, string name);
         Task<IEnumerable<CategoriaDTO>> GetAllAsync(string userId);
         Task<Categoria> AddAsync(Categoria categoria);
         Task<bool> UpdateAsync(Categoria categoria);
         Task<bool> DeleteAsync(Categoria categoria);
-        Task<bool> ExistsAsync(string userId, string name);
         Task<bool> IsCategoryHiddenAsync(string userId, string name);
         Task ShowHiddenCategory(string userId, Categoria categoria);
         Task<bool> HiddenCategory(string userId, string categoriaId);

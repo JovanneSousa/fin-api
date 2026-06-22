@@ -68,22 +68,10 @@ namespace Fin.Infra.Repositories
                 return true;
             });
 
-        public async Task<bool> ExistsAsync(string userId, string name)
-            => await ExecuteAsync(
-                async () => await _context.Categories
-                                    .AnyAsync(c => (c.UserId == userId || c.IsDefault) && c.Name.ToLower() == name.ToLower()));
-
-        public async Task<bool> IsCategoryHiddenAsync(string userId, string name)
-            => await ExecuteAsync(async () =>
-            {
-                var category = await _context.Categories
-                    .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower() && c.IsDefault);
-
-                if (category == null || !category.IsDefault) return false;
-
-                return await _context.UserHiddenCategories
-                    .AnyAsync(uhc => uhc.UserId == userId && uhc.CategoryId == category.Id);
-            });
+        public async Task<bool> IsCategoryHiddenAsync(string userId, string categoryId)
+            => await ExecuteAsync(async () 
+                => await _context.UserHiddenCategories
+                    .AnyAsync(uhc => uhc.UserId == userId && uhc.CategoryId == categoryId));
 
         public async Task<bool> HiddenCategory(string userId, string categoriaId)
             => await ExecuteAsync(async () =>
@@ -170,5 +158,12 @@ namespace Fin.Infra.Repositories
                 await SaveChangesAsync();
                 return true;
             });
+
+        public async Task<Categoria> GetCategoryByNameAndUserIdAsync(string userId, string name)
+            => await ExecuteAsync(async () =>
+                await _context.Categories
+                    .FirstOrDefaultAsync(c => 
+                        (c.UserId == userId || c.IsDefault) &&
+                        c.Name.ToLower() == name.ToLower()));
     }
 }
