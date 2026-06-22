@@ -1,26 +1,31 @@
-﻿using Fin.Domain.Models;
+﻿using Fin.Application.DTOs;
+using Fin.Domain.Models;
 
 namespace Fin.Application.Interfaces.Repositories
 {
     public interface ICategoriaRepository
     {
-        Task<Categoria> GetByIdAsync(string id, string userId); 
-        Task<IEnumerable<Categoria>> GetAllAsync(string userId);
+        // Categorias
+        Task<Categoria> GetByIdAsync(string id, string userId);
+        Task<IEnumerable<CategoriaDTO>> GetAllAsync(string userId);
         Task<Categoria> AddAsync(Categoria categoria);
         Task<bool> UpdateAsync(Categoria categoria);
         Task<bool> DeleteAsync(Categoria categoria);
         Task<bool> ExistsAsync(string userId, string name);
-        Task<List<Categoria>> ListCategoriesHiddenAsync(string userId);
         Task<bool> IsCategoryHiddenAsync(string userId, string name);
         Task ShowHiddenCategory(string userId, Categoria categoria);
         Task<bool> HiddenCategory(string userId, string categoriaId);
 
-        Task<List<Icon>> GetAllIconsAsync();
+
+        // Icones
+        Task<IList<IconDTO>> GetAllIconsAsync();
         Task<IconeCategoriaUsuario> GetIconsByUsuarioAsync(string usuarioId, string categoriaId);
         Task<bool> DeleteIconCategoriaUsuario(IconeCategoriaUsuario iconeCategoriaUsuario);
         Task<bool> SalvaIconePersonalizado(IconeCategoriaUsuario iconeCategoriaUsuario);
 
-        Task<List<Cor>> GetAllCorAsync();
+
+        // Cores
+        Task<IList<CorDTO>> GetAllCorAsync();
         Task<CorCategoriaUsuario> GetCorByUsuarioAsync(string usuarioId, string categoriaId);
         Task<bool> DeleteCorPersonalizadaAsync(CorCategoriaUsuario corCategoriaUsuario);
         Task<bool> SalvaCorPersonalizadaAsync(CorCategoriaUsuario corCategoriaUsuario);

@@ -1,4 +1,5 @@
-﻿using Fin.Application.Interfaces.Repositories;
+﻿using Fin.Application.DTOs;
+using Fin.Application.Interfaces.Repositories;
 using Fin.Domain.Models;
 using Fin.Infra.Data;
 using Microsoft.EntityFrameworkCore;
@@ -25,10 +26,12 @@ namespace Fin.Infra.Repositories
                                 .ThenInclude(c => c.Cor)
                         .FirstOrDefaultAsync());
 
-        public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
+        public async Task<IEnumerable<CategoriaDTO>> GetAllAsync(string userId)
             => await ExecuteAsync(
                 async () => await _context.Categories
-                                .Where(c => c.UserId == userId || c.IsDefault)
+                                .Where(c => (c.UserId == userId || c.IsDefault) &&  
+                                    !_context.UserHiddenCategories
+                                        .Any(h => h.UserId == userId && h.CategoryId == c.Id))
                                 .Include(c => c.IconePadrao)
                                 .Include(c => c.IconeCategoriaUsuario
                                     .Where(c => c.UserId == userId))
@@ -37,6 +40,7 @@ namespace Fin.Infra.Repositories
                                 .Include(c => c.CorCategoriaUsuarios
                                             .Where(c => c.UserId == userId))
                                             .ThenInclude(c => c.Cor)
+                                .Select(c => CategoriaDTO.ToDto(c))
                                 .AsNoTracking()
                                 .ToListAsync());
 
@@ -103,25 +107,26 @@ namespace Fin.Infra.Repositories
                 }
             });
 
-        public async Task<List<Categoria>> ListCategoriesHiddenAsync(string userId)
-            => await ExecuteAsync(
-                async () => await _context.Categories
-                                .Where(c => c.IsDefault == true)
-                                .Where(c => _context.UserHiddenCategories
-                                    .Where(h => h.UserId == userId)
-                                    .Select(h => h.CategoryId)
-                                    .Contains(c.Id))
-                                .ToListAsync());
-
-        public async Task<List<Icon>> GetAllIconsAsync()
+        public async Task<IList<IconDTO>> GetAllIconsAsync()
             => await ExecuteAsync(
                 async () => await _context.Icon
+                                .Select(i => new IconDTO
+                                {
+                                    Url = i.Url,
+                                    Name = i.Name,
+                                    Id = i.Id
+                                })
                                 .OrderBy(i => i.Name)
                                 .ToListAsync());
 
-        public async Task<List<Cor>> GetAllCorAsync()
+        public async Task<IList<CorDTO>> GetAllCorAsync()
             => await ExecuteAsync(
                 async () => await _context.Cor
+                                .Select(c => new CorDTO
+                                {
+                                    Id = c.Id,
+                                    Url = c.Url,
+                                })
                                 .ToListAsync());
 
         public async Task<IconeCategoriaUsuario> GetIconsByUsuarioAsync(string usuarioId, string categoriaId)

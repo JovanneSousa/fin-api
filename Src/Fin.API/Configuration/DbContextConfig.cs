@@ -16,6 +16,10 @@ namespace Fin.Api.Configuration
                     throw new InvalidOperationException("Connection string não configurada.");
 
                 o.UseNpgsql(connectionString);
+
+                o.LogTo(Console.WriteLine, LogLevel.Information);
+
+                o.EnableSensitiveDataLogging();
             });
 
             return builder;

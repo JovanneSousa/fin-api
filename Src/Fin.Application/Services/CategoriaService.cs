@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using Fin.Application.Interfaces.Repositories;
+﻿using Fin.Application.Interfaces.Repositories;
 using Fin.Application.Interfaces.Services;
 using Fin.Domain.Models;
 using Fin.Application.DTOs;
 using Fin.Application.Notificacoes;
+using AutoMapper;
 
 namespace Fin.Application.Services
 {
@@ -15,15 +15,15 @@ namespace Fin.Application.Services
 
         public CategoriaService(
             ICategoriaRepository repository,
-            ITransacaoRepository transacaoRepository, 
-            INotificador notificador, 
+            ITransacaoRepository transacaoRepository,
+            INotificador notificador,
             ITransacaoService transacaoService,
-            IMapper mapper) 
-            : base(notificador)
+            IMapper mapper
+            ) : base(notificador)
         {
+            _mapper = mapper;
             _repository = repository;
             _transacaoRepository = transacaoRepository;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<CategoriaDTO>> ListCategoriasAsync(string userId)
@@ -31,26 +31,14 @@ namespace Fin.Application.Services
             var categories = await ExecuteAsync(
                 async () => await _repository.GetAllAsync(userId)
                 );
-            if(categories is null || !categories.Any())
-            {
-                _notificador.Handle(new Notificacao("Nenhuma categoria encontrada!"));
-                return default;
-            }
 
-            var hiddenCategoriesId = await ExecuteAsync(
-                async () => await _repository.ListCategoriesHiddenAsync(userId)
-                );
-
-            var visibleCategories = categories.Where(c => !hiddenCategoriesId.Contains(c));
-
-            var result = _mapper.Map<IEnumerable<CategoriaDTO>>(visibleCategories);
-            if (!result.Any())
+            if (!categories.Any())
             {
                 _notificador.Handle(new Notificacao("Ocorreu um erro ao listar as categorias"));
                 return null;
             }
 
-            return result;
+            return categories;
         }
 
         public async Task<CategoriaDTO> CreateCategoriaAsync(string userId, CategoriaDTO categoria)
@@ -71,11 +59,13 @@ namespace Fin.Application.Services
 
             if(exists && isHidden)
             {
-                var category = await ExecuteAsync(
+                var categoriesDTO = await ExecuteAsync(
                     async () => await _repository.GetAllAsync(userId)
                     );
 
-                var toUnhide = category.FirstOrDefault(c => c.Name.ToLower() == categoria.Name.ToLower() && c.IsDefault);
+                var categories = CategoriaDTO.ToDomainList(categoriesDTO);
+
+                var toUnhide = categories.FirstOrDefault(c => c.Name.ToLower() == categoria.Name.ToLower() && c.IsDefault);
                 if (toUnhide != null)
                 {
                     await ExecuteAsync(
@@ -87,7 +77,7 @@ namespace Fin.Application.Services
 
             categoria.UserId = userId;
             var result = await ExecuteAsync(
-                async () => await _repository.AddAsync(_mapper.Map<Categoria>(categoria))
+                async () => await _repository.AddAsync(categoria.ToDomain())
                 );
 
             if(result == null)
@@ -96,7 +86,7 @@ namespace Fin.Application.Services
                 return null;
             }
 
-            return _mapper.Map<CategoriaDTO>(result);
+            return CategoriaDTO.ToDto(result);
         }
 
         public async Task<bool> DeleteCategoriaAsync(string userId, string categoriaId)
@@ -154,7 +144,7 @@ namespace Fin.Application.Services
                 return null;
             }
 
-            return _mapper.Map<IEnumerable<IconDTO>>(icons);
+            return icons;
         }
 
         public async Task<IEnumerable<CorDTO>> ListarCoresAsync()
@@ -169,7 +159,7 @@ namespace Fin.Application.Services
                 return null;
             }
 
-            return _mapper.Map<IEnumerable<CorDTO>>(cores);
+            return cores;
         }
 
         public async Task<CategoriaDTO> ObterCategoriaId(string id, string userId)
@@ -190,7 +180,7 @@ namespace Fin.Application.Services
                 return null;
             }
 
-            return _mapper.Map<CategoriaDTO>(categoria);
+            return CategoriaDTO.ToDto(categoria);
         }
 
         public async Task<CategoriaDTO> AtualizarCategoria(CategoriaUpdateDTO categoriaDTO, string userId, string categoriaId)
@@ -267,7 +257,7 @@ namespace Fin.Application.Services
                     return null;
                 }
             }
-            return _mapper.Map<CategoriaDTO>(categoria);
+            return CategoriaDTO.ToDto(categoria);
         }
 
         private bool AtualizacaoInvalida(Categoria categoria, CategoriaUpdateDTO categoriaDTO)
