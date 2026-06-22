@@ -2,6 +2,7 @@
 using Fin.Domain.Enums;
 using Fin.Domain.Models;
 using Fin.Infra.DTOs;
+using Fin.Infra.http.RequestDTO;
 using Fin.Infra.Notificacoes;
 using Fin.Infra.Repositories;
 
@@ -37,7 +38,8 @@ namespace Fin.Application.Services
         }
 
         public async Task<IEnumerable<TransacaoDTO>> ListTransactionsAsync(string userId)
-            => _mapper.Map<IEnumerable<TransacaoDTO>>(await ExecuteAsync(
+            => _mapper.Map<IEnumerable<TransacaoDTO>>(
+                await ExecuteAsync(
                     async () => await _repository.GetAllAsync(userId)));
 
         public async Task<TransacaoDTO> GetTransactionAsync(string id, string userId)
@@ -61,8 +63,9 @@ namespace Fin.Application.Services
             return _mapper.Map<TransacaoDTO>(transacao);
         }
 
-        public async Task<Transacao> CreateTransactionAsync(Transacao transacao, string userId)
+        public async Task<TransacaoDTO> CreateTransactionAsync(TransactionRequest transactionRequest, string userId)
         {
+            var transacao = transactionRequest.ToDomain();
             transacao.DataMovimentacao =
                 DateTime.SpecifyKind(transacao.DataMovimentacao, DateTimeKind.Utc);
             transacao.UserId = userId;
@@ -85,7 +88,7 @@ namespace Fin.Application.Services
             if (transacao.Type == TransacaoType.Despesa && transacao.IsRecurring)
                     if(!await GerarParcelas(transacao)) return null;
 
-            return transacao;
+            return _mapper.Map<TransacaoDTO>(transacao);
         }
 
 
@@ -358,7 +361,7 @@ namespace Fin.Application.Services
         private async Task<bool> GerarParcelas(Transacao origem)
         {
             var parcelas = origem.Parcelas ?? 1;
-            if (!origem.ParcelaValida(parcelas)) 
+            if (!origem.ParcelaValida()) 
             {
                 _notificador.Handle(new Notificacao("Parcelas deve ser no mínimo 2"));
                 return false;

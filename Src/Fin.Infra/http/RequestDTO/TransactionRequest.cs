@@ -1,23 +1,14 @@
 ﻿using Fin.Domain.Enums;
+using Fin.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Fin.Infra.DTOs
+namespace Fin.Infra.http.RequestDTO
 {
     /// <summary>
     /// Representa uma transação financeira no sistema.
     /// </summary>
-    public class TransacaoDTO 
+    public record TransactionRequest
     {
-        /// <summary>
-        /// Identificador único da transação.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// ID do usuário ao qual a transação pertence.
-        /// </summary>
-        public string UserId { get; set; }
-
         /// <summary>
         /// Tipo da transação (Receita ou Despesa).
         /// </summary>
@@ -29,30 +20,25 @@ namespace Fin.Infra.DTOs
         /// </summary>
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
         [StringLength(255, ErrorMessage = "O campo {0} precisa ter entre {2} e {1} caracteres", MinimumLength = 2)]
-        public string Titulo { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Valor monetário da transação.
         /// </summary>
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
-        public decimal Valor { get; set; }
+        public decimal Amount { get; set; }
 
         /// <summary>
         /// ID da categoria associada a esta transação.
         /// </summary>
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
-        public string CategoriaId { get; set; }
-
-        /// <summary>
-        /// Detalhes da categoria.
-        /// </summary>
-        public CategoriaDTO Categoria { get; set; }
+        public string CategoryId { get; set; }
 
         /// <summary>
         /// Data em que a transação ocorreu.
         /// </summary>
-        [Required(ErrorMessage = "O cam")]
-        public DateTime DataMovimentacao { get; set; }
+        [Required(ErrorMessage = "O campo {0} é obrigatório")]
+        public DateTime TransactionDate { get; set; }
 
         /// <summary>
         /// Indica se a transação é recorrente.
@@ -61,29 +47,20 @@ namespace Fin.Infra.DTOs
         public bool IsRecurring { get; set; }
 
         /// <summary>
-        /// Tipo de recorrência (Mensal, Semanal, etc.).
-        /// </summary>
-        public RecorrenciaType? RecorrenciaType { get; set; }
-
-        /// <summary>
-        /// Data limite para o fim da recorrência.
-        /// </summary>
-        public DateTime? RecorrenciaEndDate { get; set; }
-
-        /// <summary>
         /// Número total de parcelas (se aplicável).
         /// </summary>
         public int? Parcelas { get; set; }
 
-        /// <summary>
-        /// Número da parcela atual.
-        /// </summary>
-        public int? ParcelaAtual { get; set; }
-
-        /// <summary>
-        /// Verifica se o número de parcelas é válido para parcelamento.
-        /// </summary>
-        public bool ParcelaValida(int parcelas)
-            => parcelas >= 2;
+        public Transacao ToDomain()
+            => new Transacao
+            {
+                Type = Type,
+                Titulo = Description,
+                Valor = Amount,
+                CategoriaId = CategoryId,
+                DataMovimentacao = TransactionDate,
+                IsRecurring = IsRecurring,
+                Parcelas = Parcelas
+            };
     }
 }

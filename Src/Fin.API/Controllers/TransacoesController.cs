@@ -5,6 +5,7 @@ using Fin.Infra.Notificacoes;
 using Fin.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Fin.Infra.http.RequestDTO;
 
 namespace Fin.Api.Controllers
 {
@@ -97,7 +98,7 @@ namespace Fin.Api.Controllers
         [ClaimsAuthorize("permission", "FIN:TRN_CRIAR")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<Transacao>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Transacao>> Post([FromBody] Transacao transacao)
+        public async Task<ActionResult<TransacaoDTO>> Post([FromBody] TransactionRequest transacao)
             => CustomResponse(await _transacaoService.CreateTransactionAsync(transacao, UsuarioId));
 
         /// <summary>

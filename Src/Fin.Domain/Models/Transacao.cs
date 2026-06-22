@@ -4,6 +4,8 @@ namespace Fin.Domain.Models
 {
     public class Transacao : Entity
     {
+        public Transacao() { }
+
         public string UserId { get; set; }
         public TransacaoType Type { get; set; }
         public string Titulo { get; set; }
@@ -20,7 +22,7 @@ namespace Fin.Domain.Models
         public int? ParcelaAtual { get; set; }
         public string? ParentTransactionId { get; set; }
         public Transacao ParentTransaction { get; set; }
-        public bool ParcelaValida(int parcelas)
-            => parcelas >= 2;
+        public bool ParcelaValida()
+            => IsRecurring && Parcelas >= 2;
     }
 }
