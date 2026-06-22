@@ -1,6 +1,6 @@
-﻿using Fin.Infra.DTOs;
+﻿using Fin.Application.DTOs;
 
-namespace Fin.Application.Services
+namespace Fin.Application.Interfaces.Services
 {
     public interface ICategoriaService
     {

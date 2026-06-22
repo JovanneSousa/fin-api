@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Fin.Domain.Models;
-using Fin.Infra.DTOs;
+using Fin.Application.DTOs;
 
 namespace Fin.Application.Mapper
 {

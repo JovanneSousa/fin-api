@@ -1,4 +1,4 @@
-﻿namespace Fin.Infra.Notificacoes
+﻿namespace Fin.Domain.Models
 {
     public class Notificacao
     {

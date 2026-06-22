@@ -1,7 +1,7 @@
 ﻿using Fin.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Fin.Infra.DTOs
+namespace Fin.Application.DTOs
 {
     /// <summary>
     /// Representa uma transação financeira no sistema.

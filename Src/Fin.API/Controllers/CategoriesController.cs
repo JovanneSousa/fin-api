@@ -1,8 +1,8 @@
 ﻿
 using Fin.Api.Extensions;
-using Fin.Application.Services;
-using Fin.Infra.DTOs;
-using Fin.Infra.Notificacoes;
+using Fin.Application.DTOs;
+using Fin.Application.Interfaces.Services;
+using Fin.Application.Notificacoes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

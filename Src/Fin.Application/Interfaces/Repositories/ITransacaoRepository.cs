@@ -1,7 +1,7 @@
 ﻿using Fin.Domain.Models;
-using Fin.Infra.DTOs;
+using Fin.Application.DTOs;
 
-namespace Fin.Infra.Repositories
+namespace Fin.Application.Interfaces.Repositories
 {
     public interface ITransacaoRepository
     {

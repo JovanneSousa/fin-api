@@ -1,8 +1,9 @@
-﻿using Fin.Infra.DTOs;
-using Fin.Api.Extensions;
-using Fin.Infra.Notificacoes;
+﻿using Fin.Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Fin.Application.Notificacoes;
+using Fin.Application.DTOs;
+using Fin.Domain.Models;
 
 namespace Fin.Api.Controllers
 {

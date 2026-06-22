@@ -2,7 +2,7 @@
 using Fin.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Fin.Infra.http.RequestDTO
+namespace Fin.Application.http.RequestDTO
 {
     /// <summary>
     /// Representa uma transação financeira no sistema.

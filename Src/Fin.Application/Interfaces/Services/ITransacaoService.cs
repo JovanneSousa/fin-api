@@ -1,7 +1,7 @@
-﻿using Fin.Infra.DTOs;
-using Fin.Infra.http.RequestDTO;
+﻿using Fin.Application.DTOs;
+using Fin.Application.http.RequestDTO;
 
-namespace Fin.Application.Services
+namespace Fin.Application.Interfaces.Services
 {
     public interface ITransacaoService 
     {

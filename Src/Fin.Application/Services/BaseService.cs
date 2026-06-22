@@ -1,6 +1,6 @@
-﻿using Fin.Domain.Exceptions;
-using Fin.Infra.Notificacoes;
-
+﻿using Fin.Application.Notificacoes;
+using Fin.Domain.Exceptions;
+using Fin.Domain.Models;
 namespace Fin.Application.Services
 {
     public abstract class BaseService

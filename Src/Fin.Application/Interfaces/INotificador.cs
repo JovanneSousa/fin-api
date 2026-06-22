@@ -1,4 +1,6 @@
-﻿namespace Fin.Infra.Notificacoes
+﻿using Fin.Domain.Models;
+
+namespace Fin.Application.Notificacoes
 {
     public interface INotificador
     {

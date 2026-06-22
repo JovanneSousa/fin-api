@@ -1,8 +1,9 @@
-﻿using Fin.Infra.DTOs;
+﻿using Fin.Application.DTOs;
 using Fin.Domain.Models;
 using Fin.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Fin.Domain.Enums;
+using Fin.Application.Interfaces.Repositories;
 
 namespace Fin.Infra.Repositories
 {

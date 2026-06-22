@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
-using Fin.Infra.DTOs;
-using Fin.Infra.Notificacoes;
-using Fin.Infra.Repositories;
+using Fin.Application.DTOs;
+using Fin.Application.Notificacoes;
 using Fin.Domain.Models;
+using Fin.Application.Interfaces.Repositories;
+using Fin.Application.Interfaces.Services;
 
 namespace Fin.Application.Services
 {

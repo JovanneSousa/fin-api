@@ -1,11 +1,11 @@
-﻿using Fin.Infra.DTOs;
+﻿using Fin.Application.DTOs;
 using Fin.Api.Extensions;
 using Fin.Domain.Models;
-using Fin.Infra.Notificacoes;
-using Fin.Application.Services;
+using Fin.Application.Notificacoes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Fin.Infra.http.RequestDTO;
+using Fin.Application.http.RequestDTO;
+using Fin.Application.Interfaces.Services;
 
 namespace Fin.Api.Controllers
 {

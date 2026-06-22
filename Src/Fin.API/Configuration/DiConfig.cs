@@ -2,6 +2,9 @@
 using Fin.Infra.Repositories;
 using Fin.Application.Services;
 using Fin.Api.Extensions;
+using Fin.Application.Interfaces.Repositories;
+using Fin.Application.Interfaces.Services;
+using Fin.Application.Notificacoes;
 
 namespace Fin.Api.Configuration
 {

@@ -1,4 +1,4 @@
-﻿namespace Fin.Infra.DTOs
+﻿namespace Fin.Application.DTOs
 {
     public class ResponseSuccessDTO<T>
     {

@@ -1,4 +1,5 @@
-﻿using Fin.Domain.Models;
+﻿using Fin.Application.Interfaces.Repositories;
+using Fin.Domain.Models;
 using Fin.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 

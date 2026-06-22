@@ -1,7 +1,7 @@
-﻿using Fin.Infra.DTOs;
+﻿using Fin.Application.DTOs;
 using Fin.Domain.Models;
 
-namespace Fin.Application.Services
+namespace Fin.Application.Interfaces.Services
 {
     public interface IUsuarioService
     {

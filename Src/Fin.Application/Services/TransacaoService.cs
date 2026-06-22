@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using Fin.Application.Interfaces.Repositories;
+using Fin.Application.Interfaces.Services;
 using Fin.Domain.Enums;
 using Fin.Domain.Models;
-using Fin.Infra.DTOs;
-using Fin.Infra.http.RequestDTO;
-using Fin.Infra.Notificacoes;
-using Fin.Infra.Repositories;
+using Fin.Application.DTOs;
+using Fin.Application.http.RequestDTO;
+using Fin.Application.Notificacoes;
 
 namespace Fin.Application.Services
 {

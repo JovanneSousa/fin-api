@@ -1,6 +1,6 @@
 ﻿using Fin.Domain.Enums;
 
-namespace Fin.Infra.DTOs
+namespace Fin.Application.DTOs
 {
     public class CategoriaUpdateDTO
     {

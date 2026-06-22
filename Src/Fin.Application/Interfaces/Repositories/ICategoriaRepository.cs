@@ -1,6 +1,6 @@
 ﻿using Fin.Domain.Models;
 
-namespace Fin.Infra.Repositories
+namespace Fin.Application.Interfaces.Repositories
 {
     public interface ICategoriaRepository
     {

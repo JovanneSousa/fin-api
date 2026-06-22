@@ -14,7 +14,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fin.Domain\Fin.Domain.csproj" />
-    <ProjectReference Include="..\Fin.Infra\Fin.Infra.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="http\ResponseDTO\" />
   </ItemGroup>
 
 
