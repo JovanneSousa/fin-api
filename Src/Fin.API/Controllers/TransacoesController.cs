@@ -17,9 +17,9 @@ namespace Fin.Api.Controllers
         private readonly ITransacaoService _transacaoService;
 
         public TransacoesController(
-            ITransacaoService service, 
-            IUser appUser, 
-            INotificador notificador) : base (notificador, appUser)
+            ITransacaoService service,
+            IUser appUser,
+            INotificador notificador) : base(notificador, appUser)
         {
             _transacaoService = service;
         }

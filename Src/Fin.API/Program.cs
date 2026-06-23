@@ -1,6 +1,7 @@
 using Configuration;
 using Fin.Api.Configuration;
 using Fin.Api.Configuration.Swagger;
+using Fin.API.Handlers;
 using Fin.Application.Mapper;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,9 @@ builder
     {
         cfg.AddMaps(typeof(ApplicationAssemblyMarker).Assembly);
     });
+builder.Services.
+    AddProblemDetails()
+    .AddExceptionHandler<GlobalExceptionHandler>();
 
 await builder.Services
     .AddRabbitConfiguration(builder.Configuration);
@@ -32,6 +36,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseExceptionHandler();
 
 app.UseRouting();
 

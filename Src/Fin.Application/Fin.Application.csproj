@@ -16,9 +16,5 @@
     <ProjectReference Include="..\Fin.Domain\Fin.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="http\ResponseDTO\" />
-  </ItemGroup>
-
 
 </Project>

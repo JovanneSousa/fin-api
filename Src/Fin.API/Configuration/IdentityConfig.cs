@@ -1,6 +1,8 @@
-﻿using Fin.Domain.Models;
+﻿using Fin.Application.http.ResponseDTO;
+using Fin.Domain.Models;
 using Fin.Infra.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using NetDevPack.Security.JwtExtensions;
 
 namespace Fin.Api.Configuration
@@ -23,6 +25,35 @@ namespace Fin.Api.Configuration
                 o.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
                 o.SaveToken = true;
                 o.SetJwksOptions(new JwkOptions($"{jwtSettings.AutenticacaoJwksUrl}/jwks", issuer));
+
+                o.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+
+                        await context.Response.WriteAsJsonAsync(new ApiResponse
+                        {
+                            Success = false,
+                            Errors = ["Usuário não autenticado!"]
+                        });
+                    },
+
+                    OnForbidden = async context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+
+                        await context.Response.WriteAsJsonAsync(new ApiResponse
+                        {
+                            Success = false,
+                            Errors = ["Você não tem permissão para acessar este recurso!"]
+                        });
+                    }
+                };
             });
 
 
