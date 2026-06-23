@@ -12,7 +12,7 @@ namespace Fin.Application.DTOs
         /// <summary>
         /// Identificador único da categoria.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Nome da categoria (ex: Alimentação, Transporte, Lazer).

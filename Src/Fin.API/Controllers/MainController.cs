@@ -65,7 +65,7 @@ namespace Fin.Api.Controllers
 
         protected void NotificarErro(string mensagem)
         {
-            _notificador.Handle(new Notificacao(mensagem));
+            _notificador.Handle(mensagem);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Fin.Application.Interfaces.Repositories
     {
         public Task<Transacao> GetByIdAsync(string id, string userId);
         public Task<List<Transacao>> GetByParentTransactionId(string parentTrancationId);
+        Task<bool> TransactionsExistsByCategoryAsync(string userId, string categoryId);
         public Task<IEnumerable<Transacao>> GetAllAsync(string userId);
         Task<IEnumerable<Transacao>> GetByPeriodAsync(string userId, DateTime startDate, DateTime endDate);
         Task<List<SaldoMensalDTO>> GetValuesByMonth(string userId, DateTime dataInicial, DateTime dataFinal);

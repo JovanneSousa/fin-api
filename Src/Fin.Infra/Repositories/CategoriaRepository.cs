@@ -1,5 +1,6 @@
 ﻿using Fin.Application.DTOs;
 using Fin.Application.Interfaces.Repositories;
+using Fin.Domain.Enums;
 using Fin.Domain.Models;
 using Fin.Infra.Data;
 using Microsoft.EntityFrameworkCore;
@@ -86,35 +87,23 @@ namespace Fin.Infra.Repositories
         public async Task ShowHiddenCategory(string userId, Categoria categoria)
             => await ExecuteAsync(async () =>
             {
-                var hiddenCategory = await _context.UserHiddenCategories
-                    .FirstOrDefaultAsync(uhc => uhc.UserId == userId && uhc.CategoryId == categoria.Id);
-                if (hiddenCategory != null)
-                {
-                    _context.UserHiddenCategories.Remove(hiddenCategory);
-                    await SaveChangesAsync();
-                }
+                _context.UserHiddenCategories.Remove(
+                    await _context.UserHiddenCategories
+                        .FirstOrDefaultAsync(uhc => uhc.UserId == userId && uhc.CategoryId == categoria.Id));
+                await SaveChangesAsync();
             });
 
         public async Task<IList<IconDTO>> GetAllIconsAsync()
             => await ExecuteAsync(
                 async () => await _context.Icon
-                                .Select(i => new IconDTO
-                                {
-                                    Url = i.Url,
-                                    Name = i.Name,
-                                    Id = i.Id
-                                })
                                 .OrderBy(i => i.Name)
+                                .Select(i => IconDTO.ToDto(i))
                                 .ToListAsync());
 
         public async Task<IList<CorDTO>> GetAllCorAsync()
             => await ExecuteAsync(
                 async () => await _context.Cor
-                                .Select(c => new CorDTO
-                                {
-                                    Id = c.Id,
-                                    Url = c.Url,
-                                })
+                                .Select(c => CorDTO.ToDto(c))
                                 .ToListAsync());
 
         public async Task<IconeCategoriaUsuario> GetIconsByUsuarioAsync(string usuarioId, string categoriaId)
@@ -159,11 +148,12 @@ namespace Fin.Infra.Repositories
                 return true;
             });
 
-        public async Task<Categoria> GetCategoryByNameAndUserIdAsync(string userId, string name)
+        public async Task<Categoria> GetCategoryByNameAndUserIdAsync(string userId, string categoryName, TransacaoType categoryType)
             => await ExecuteAsync(async () =>
                 await _context.Categories
                     .FirstOrDefaultAsync(c => 
                         (c.UserId == userId || c.IsDefault) &&
-                        c.Name.ToLower() == name.ToLower()));
+                        c.Name.ToLower() == categoryName.ToLower() &&
+                        c.Type == categoryType));
     }
 }

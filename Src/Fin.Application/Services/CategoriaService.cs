@@ -32,57 +32,48 @@ namespace Fin.Application.Services
                 async () => await _repository.GetAllAsync(userId)
                 );
 
-            if (!categories.Any())
-            {
-                _notificador.Handle(new Notificacao("Ocorreu um erro ao listar as categorias"));
-                return null;
-            }
-
-            return categories;
+            return categories ?? new List<CategoriaDTO>();
         }
 
         public async Task<CategoriaDTO> CreateCategoriaAsync(string userId, CategoriaDTO categoria)
         {
             var category = await ExecuteAsync(
-                async() => await _repository.GetCategoryByNameAndUserIdAsync(userId, categoria.Name)
+                async() => await _repository.GetCategoryByNameAndUserIdAsync(userId, categoria.Name, categoria.Type)
                 );
 
             if(category is null)
-            {
-                categoria.UserId = userId;
-                var created = await ExecuteAsync(
-                    async () => await _repository.AddAsync(categoria.ToDomain())
-                    );
-
-                if (created == null)
-                {
-                    _notificador.Handle(new Notificacao("Ocorreu um erro ao criar categoria"));
-                    return null;
-                }
-
-                return CategoriaDTO.ToDto(created);
-            }
+                return await BuildCategory(userId, categoria);
 
 
             var isHidden = await ExecuteAsync(
-                async () => await _repository.IsCategoryHiddenAsync(userId, categoria.Id)
+                async () => await _repository.IsCategoryHiddenAsync(userId, category.Id)
                 );
-
             if (!isHidden)
-            {
-                _notificador.Handle(new Notificacao("Categoria já existe para este usuário."));
-                return null;
-            }
-            if (category == null)
-            {
-                _notificador.Handle(new Notificacao("Falha ao encontrar categoria"));
-                return null;
-            }
+                return RetornaErroProcessamento<CategoriaDTO>("Categoria já existe para este usuário.");
+
+            return await ShowHiddenCategory(userId, category);
+        }
+
+        private async Task<CategoriaDTO> ShowHiddenCategory(string userId, Categoria category)
+        {
             await ExecuteAsync(
                 async () => await _repository.ShowHiddenCategory(userId, category)
                 );
 
             return CategoriaDTO.ToDto(category);
+        }
+
+        private async Task<CategoriaDTO> BuildCategory(string userId, CategoriaDTO categoria)
+        {
+            categoria.UserId = userId;
+            var created = await ExecuteAsync(
+                async () => await _repository.AddAsync(categoria.ToDomain())
+                );
+
+            if (created == null)
+                return RetornaErroProcessamento<CategoriaDTO>("Ocorreu um erro ao criar categoria");
+
+            return CategoriaDTO.ToDto(created);
         }
 
         public async Task<bool> DeleteCategoriaAsync(string userId, string categoriaId)
@@ -92,40 +83,22 @@ namespace Fin.Application.Services
                 );
 
             if (categoria == null)
-            {
-                _notificador.Handle(new Notificacao("Categoria não encontrada!"));
-                return false;
-            }
+                return RetornaErroProcessamento<bool>("Categoria não encontrada!");
 
             if (categoria.UserId != userId && categoria.UserId != null)
-            {
-                _notificador.Handle(new Notificacao("Você não tem permissão para deletar esta categoria."));
-                return false;
-            }
+                return RetornaErroProcessamento<bool>("Você não tem permissão para deletar esta categoria.");
 
-            var transacaoExists = await ExecuteAsync(
-                async () => await _transacaoRepository.GetAllAsync(userId)
+            var transactionExists = await ExecuteAsync(
+                async () => await _transacaoRepository.TransactionsExistsByCategoryAsync(userId, categoriaId));
+
+            if (transactionExists)
+                return RetornaErroProcessamento<bool>("Não é possível deletar uma categoria associada a transações.");
+
+            return await ExecuteAsync(
+                async () => categoria.IsDefault ?
+                    await _repository.HiddenCategory(userId, categoria.Id) : 
+                    await _repository.DeleteAsync(categoria)
                 );
-
-            if (transacaoExists.Any(t => t.CategoriaId == categoria.Id))
-            {
-                _notificador.Handle(new Notificacao("Não é possível deletar uma categoria associada a transações."));
-                return false;
-            }
-
-            if (categoria.IsDefault)
-                return await ExecuteAsync(
-                    async () => await _repository.HiddenCategory(userId, categoria.Id)
-                    );
-
-
-            if (!categoria.IsDefault)
-                return await ExecuteAsync(
-                    async () => await _repository.DeleteAsync(categoria)
-                    );
-
-            _notificador.Handle(new Notificacao("Ocorreu um erro ao deletar a categoria!"));
-            return false;
         }
 
         public async Task<IEnumerable<IconDTO>> ListarIconesAsync()
@@ -134,13 +107,7 @@ namespace Fin.Application.Services
                 async () => await _repository.GetAllIconsAsync()
                 );
 
-            if(!icons.Any())
-            {
-                _notificador.Handle(new Notificacao("Nenhum icone encontrado"));
-                return null;
-            }
-
-            return icons;
+            return icons ?? new List<IconDTO>();
         }
 
         public async Task<IEnumerable<CorDTO>> ListarCoresAsync()
@@ -149,13 +116,7 @@ namespace Fin.Application.Services
                 async () => await _repository.GetAllCorAsync()
                 );
 
-            if (!cores.Any())
-            {
-                _notificador.Handle(new Notificacao("Nenuma cor encontrada"));
-                return null;
-            }
-
-            return cores;
+            return cores ?? new List<CorDTO>();
         }
 
         public async Task<CategoriaDTO> ObterCategoriaId(string id, string userId)
@@ -165,16 +126,10 @@ namespace Fin.Application.Services
                 );
 
             if (categoria == null)
-            {
-                _notificador.Handle(new Notificacao("Categoria não encontrada!"));
-                return null;
-            }
+                return RetornaErroProcessamento<CategoriaDTO>("Categoria não encontrada!");
 
             if (!categoria.IsDefault && categoria.UserId != userId) 
-            {
-                _notificador.Handle(new Notificacao("Você não tem acesso a essa categoria!"));
-                return null;
-            }
+                return RetornaErroProcessamento<CategoriaDTO>("Você não tem acesso a essa categoria!");
 
             return CategoriaDTO.ToDto(categoria);
         }
@@ -186,17 +141,13 @@ namespace Fin.Application.Services
                 );
 
             if(categoria == null)
-            {
-                _notificador.Handle(new Notificacao("Categoria não encontrada!"));
-                return null;
-            }
+                return RetornaErroProcessamento<CategoriaDTO>("Categoria não encontrada!");
+
             if (categoria.IsDefault)
             {
                 if(AtualizacaoInvalida(categoria, categoriaDTO))
-                {
-                    _notificador.Handle(new Notificacao("Não é possivel atualizar o nome ou tipo de uma categoria padrão!"));
-                    return null;
-                }
+                    return RetornaErroProcessamento<CategoriaDTO>("Não é possivel atualizar o nome ou tipo de uma categoria padrão!");
+
                 if (!string.IsNullOrEmpty(categoriaDTO.IconId) && categoria.Icone.Id != categoriaDTO.IconId)
                 {
                     var result = await AtualizarValorPersonalizadoAsync<IconeCategoriaUsuario>(
@@ -214,10 +165,7 @@ namespace Fin.Application.Services
                                     });
 
                     if (!result)
-                    {
-                        _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
-                        return null;
-                    }
+                        return RetornaErroProcessamento<CategoriaDTO>("Houve um problema ao atualizar a categoria!");
                 }
 
                 if (!string.IsNullOrEmpty(categoriaDTO.CorId) && categoria.Cor.Id != categoriaDTO.CorId)
@@ -236,10 +184,7 @@ namespace Fin.Application.Services
                                         CorId = corId
                                     });
                     if (!result)
-                    {
-                        _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
-                        return null;
-                    }
+                        return RetornaErroProcessamento<CategoriaDTO>("Houve um problema ao atualizar a categoria!");
                 }
             } else
             {
@@ -248,10 +193,7 @@ namespace Fin.Application.Services
                     );
 
                 if (!result)
-                {
-                    _notificador.Handle(new Notificacao("Houve um problema ao atualizar a categoria!"));
-                    return null;
-                }
+                    return RetornaErroProcessamento<CategoriaDTO>("Houve um problema ao atualizar a categoria!");
             }
             return CategoriaDTO.ToDto(categoria);
         }

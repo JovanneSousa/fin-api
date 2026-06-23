@@ -1,6 +1,6 @@
 ﻿using Fin.Application.Notificacoes;
 using Fin.Domain.Exceptions;
-using Fin.Domain.Models;
+
 namespace Fin.Application.Services
 {
     public abstract class BaseService
@@ -19,8 +19,7 @@ namespace Fin.Application.Services
                 return await action();
             } catch (DatabaseException ex)
             {
-                _notificador.Handle(new Notificacao($"Erro no banco: {ex.Message}"));
-                return default;
+                return RetornaErroProcessamento<T>($"Erro no banco: {ex.Message}");
             }
         }
 
@@ -32,5 +31,15 @@ namespace Fin.Application.Services
                 return true;
             });
         }
+
+        protected T? RetornaSerieErrosProcessamento<T>(IEnumerable<string> erros)
+        {
+            foreach (var erro in erros)
+                _notificador.Handle(erro);
+            return default(T?);
+        }
+
+        protected T? RetornaErroProcessamento<T>(string erro)
+            => _notificador.Handle<T>(erro);
     }
 }

@@ -29,11 +29,9 @@ namespace Fin.Application.Services
                 async () => await _usuarioRepository.CreateUsuarioAsync(usuario)
                 );
 
-            if(!result)
-            {
-                _notificador.Handle(new Notificacao("Erro ao salvar usuario!"));
-                return false;
-            }
+            if (!result)
+                return RetornaErroProcessamento<bool>("Erro ao salvar usuario!");
+
             return true;
         }
 
@@ -42,11 +40,8 @@ namespace Fin.Application.Services
             var user = await ExecuteAsync(
                 async () => await _usuarioRepository.GetUsuarioByIdAsync(id)
                 );
-            if(user == null)
-            {
-                _notificador.Handle(new Notificacao("Usuario não encontrado!"));
-                return null;
-            }
+            if (user == null)
+                return RetornaErroProcessamento<UsuarioDTO>("Usuario não encontrado!");
 
             return _mapper.Map<UsuarioDTO>(user);
         }

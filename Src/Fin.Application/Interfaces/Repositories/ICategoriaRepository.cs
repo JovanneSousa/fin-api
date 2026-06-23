@@ -1,4 +1,5 @@
 ﻿using Fin.Application.DTOs;
+using Fin.Domain.Enums;
 using Fin.Domain.Models;
 
 namespace Fin.Application.Interfaces.Repositories
@@ -7,7 +8,7 @@ namespace Fin.Application.Interfaces.Repositories
     {
         // Categorias
         Task<Categoria> GetByIdAsync(string id, string userId);
-        Task<Categoria> GetCategoryByNameAndUserIdAsync(string userId, string name);
+        Task<Categoria> GetCategoryByNameAndUserIdAsync(string userId, string categoryName, TransacaoType categoryType);
         Task<IEnumerable<CategoriaDTO>> GetAllAsync(string userId);
         Task<Categoria> AddAsync(Categoria categoria);
         Task<bool> UpdateAsync(Categoria categoria);

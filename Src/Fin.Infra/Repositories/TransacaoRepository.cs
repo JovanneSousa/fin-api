@@ -40,6 +40,11 @@ namespace Fin.Infra.Repositories
                     .OrderBy(x => x.Mes)
                     .ToListAsync());
 
+        public async Task<bool> TransactionsExistsByCategoryAsync(string userId, string categoryId)
+            => await ExecuteAsync(async () 
+                => await _context.Transactions
+                    .AnyAsync(t => t.UserId == userId && t.CategoriaId == categoryId));
+
         public async Task<Transacao> GetByIdAsync(string id, string userId)
             => await ExecuteAsync(
                 async () => await _context.Transactions
