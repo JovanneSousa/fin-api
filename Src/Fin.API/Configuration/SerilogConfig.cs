@@ -4,7 +4,7 @@ namespace Fin.Api.Configuration
 {
     public static class SerilogConfig
     {
-        public static WebApplicationBuilder AddSerilogConfig(this WebApplicationBuilder builder)
+        public static IServiceCollection AddSerilogConfig(this IServiceCollection services, IHostBuilder host)
         {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
@@ -13,9 +13,9 @@ namespace Fin.Api.Configuration
                 .WriteTo.Console()
                 .CreateLogger();
 
-            builder.Host.UseSerilog();
+            host.UseSerilog();
 
-            return builder;
+            return services;
         }
     }
 }

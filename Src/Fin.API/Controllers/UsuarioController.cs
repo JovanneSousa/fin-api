@@ -1,7 +1,7 @@
-﻿using Fin.Api.Extensions;
-using Fin.Application.DTOs;
+﻿using Fin.Application.DTOs;
 using Fin.Application.Interfaces.Services;
 using Fin.Application.Notificacoes;
+using Jovanne.Jwks.Client.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

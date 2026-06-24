@@ -1,9 +1,8 @@
-﻿using Fin.Api.Extensions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Fin.Application.Notificacoes;
 using Fin.Application.DTOs;
-using Fin.Domain.Models;
+using Jovanne.Jwks.Client.Extensions;
 
 namespace Fin.Api.Controllers
 {

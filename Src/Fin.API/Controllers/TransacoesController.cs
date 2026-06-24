@@ -1,11 +1,11 @@
 ﻿using Fin.Application.DTOs;
-using Fin.Api.Extensions;
 using Fin.Domain.Models;
 using Fin.Application.Notificacoes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Fin.Application.http.RequestDTO;
 using Fin.Application.Interfaces.Services;
+using Jovanne.Jwks.Client.Extensions;
 
 namespace Fin.Api.Controllers
 {
