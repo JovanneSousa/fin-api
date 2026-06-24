@@ -42,7 +42,7 @@ app.UseRouting();
 
 app.UseCors("Production");
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

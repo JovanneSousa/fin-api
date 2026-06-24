@@ -29,8 +29,7 @@ namespace Fin.Application.Services
         public async Task<IEnumerable<CategoriaDTO>> ListCategoriasAsync(string userId)
         { 
             var categories = await ExecuteAsync(
-                async () => await _repository.GetAllAsync(userId)
-                );
+                    async () => await _repository.GetAllAsync(userId));
 
             return categories ?? new List<CategoriaDTO>();
         }
@@ -38,8 +37,7 @@ namespace Fin.Application.Services
         public async Task<CategoriaDTO> CreateCategoriaAsync(string userId, CategoriaDTO categoria)
         {
             var category = await ExecuteAsync(
-                async() => await _repository.GetCategoryByNameAndUserIdAsync(userId, categoria.Name, categoria.Type)
-                );
+                    async() => await _repository.GetCategoryByNameAndUserIdAsync(userId, categoria.Name, categoria.Type));
 
             if(category is null)
                 return await BuildCategory(userId, categoria);
