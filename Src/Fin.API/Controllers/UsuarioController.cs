@@ -28,7 +28,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Retorna o perfil do usuário.</response>
         /// <response code="404">Se o usuário não for encontrado.</response>
         [HttpGet]
-        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ClaimsAuthorize( "FIN:TRN_LER")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<UsuarioDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
