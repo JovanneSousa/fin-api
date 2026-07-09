@@ -1,8 +1,8 @@
-﻿using Fin.Infra.DTOs;
-using Fin.Api.Extensions;
-using Fin.Infra.Notificacoes;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Fin.Application.Notificacoes;
+using Fin.Application.DTOs;
+using Jovanne.Jwks.Client.Extensions;
 
 namespace Fin.Api.Controllers
 {
@@ -64,7 +64,7 @@ namespace Fin.Api.Controllers
 
         protected void NotificarErro(string mensagem)
         {
-            _notificador.Handle(new Notificacao(mensagem));
+            _notificador.Handle(mensagem);
         }
     }
 }

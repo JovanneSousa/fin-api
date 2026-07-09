@@ -1,8 +1,8 @@
 ﻿
-using Fin.Api.Extensions;
-using Fin.Application.Services;
-using Fin.Infra.DTOs;
-using Fin.Infra.Notificacoes;
+using Fin.Application.DTOs;
+using Fin.Application.Interfaces.Services;
+using Fin.Application.Notificacoes;
+using Jovanne.Jwks.Client.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +31,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Retorna a categoria solicitada.</response>
         /// <response code="404">Se a categoria não for encontrada.</response>
         [HttpGet("{id}")]
-        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        [ClaimsAuthorize( "FIN:CTG_LER")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<CategoriaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
@@ -44,7 +44,7 @@ namespace Fin.Api.Controllers
         /// <returns>Uma lista de categorias.</returns>
         /// <response code="200">Retorna a lista de categorias.</response>
         [HttpGet]
-        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        [ClaimsAuthorize( "FIN:CTG_LER")]
         [ProducesResponseType(typeof(IEnumerable<CategoriaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> ListarCategorias() 
@@ -56,7 +56,7 @@ namespace Fin.Api.Controllers
         /// <returns>Uma lista de ícones.</returns>
         /// <response code="200">Retorna a lista de ícones.</response>
         [HttpGet("icones")]
-        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        [ClaimsAuthorize( "FIN:CTG_LER")]
         [ProducesResponseType(typeof(IEnumerable<IconDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<IconDTO>>> ListarIcones()
@@ -68,7 +68,7 @@ namespace Fin.Api.Controllers
         /// <returns>Uma lista de cores.</returns>
         /// <response code="200">Retorna a lista de cores.</response>
         [HttpGet("cores")]
-        [ClaimsAuthorize("permission", "FIN:CTG_LER")]
+        [ClaimsAuthorize( "FIN:CTG_LER")]
         [ProducesResponseType(typeof(IEnumerable<CorDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<CorDTO>>> ListarCores()
@@ -82,7 +82,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Categoria cadastrada com sucesso.</response>
         /// <response code="400">Se houver erros de validação.</response>
         [HttpPost]
-        [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
+        [ClaimsAuthorize( "FIN:CTG_CRIAR")]
         [ProducesResponseType(typeof(CategoriaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CategoriaDTO>> Cadastrar([FromBody] CategoriaDTO categoria)
@@ -97,7 +97,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Categoria atualizada com sucesso.</response>
         /// <response code="400">Se houver erros de validação.</response>
         [HttpPut("atualizar/{id}")]
-        [ClaimsAuthorize("permission", "FIN:CTG_CRIAR")]
+        [ClaimsAuthorize( "FIN:CTG_CRIAR")]
         [ProducesResponseType(typeof(CategoriaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CategoriaDTO>> AtualizarCategoria([FromBody] CategoriaUpdateDTO categoria, string id)
@@ -111,7 +111,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Categoria excluída com sucesso.</response>
         /// <response code="404">Se a categoria não for encontrada ou não puder ser excluída.</response>
         [HttpDelete("{id}")]
-        [ClaimsAuthorize("permission", "FIN:CTG_EXCLUIR")]
+        [ClaimsAuthorize( "FIN:CTG_EXCLUIR")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<bool>),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]

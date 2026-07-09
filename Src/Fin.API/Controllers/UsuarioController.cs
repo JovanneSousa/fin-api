@@ -1,7 +1,7 @@
-﻿using Fin.Api.Extensions;
-using Fin.Application.Services;
-using Fin.Infra.DTOs;
-using Fin.Infra.Notificacoes;
+﻿using Fin.Application.DTOs;
+using Fin.Application.Interfaces.Services;
+using Fin.Application.Notificacoes;
+using Jovanne.Jwks.Client.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +28,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Retorna o perfil do usuário.</response>
         /// <response code="404">Se o usuário não for encontrado.</response>
         [HttpGet]
-        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ClaimsAuthorize( "FIN:TRN_LER")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<UsuarioDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]

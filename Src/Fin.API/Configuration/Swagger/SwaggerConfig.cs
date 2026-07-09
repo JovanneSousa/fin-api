@@ -6,9 +6,9 @@ namespace Fin.Api.Configuration.Swagger
     public static class SwaggerConfig
     {
 
-        public static WebApplicationBuilder AddSwaggerConfig(this WebApplicationBuilder builder)
+        public static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
         {
-            builder.Services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -52,9 +52,9 @@ namespace Fin.Api.Configuration.Swagger
                    );
             });
 
-            builder.Services.AddEndpointsApiExplorer();
+            services.AddEndpointsApiExplorer();
 
-            return builder;
+            return services;
         }
     }
 }

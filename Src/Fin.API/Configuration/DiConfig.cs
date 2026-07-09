@@ -1,29 +1,32 @@
 ﻿using Fin.Infra.Notificacoes;
 using Fin.Infra.Repositories;
 using Fin.Application.Services;
-using Fin.Api.Extensions;
+using Fin.Application.Interfaces.Repositories;
+using Fin.Application.Interfaces.Services;
+using Fin.Application.Notificacoes;
+using Jovanne.Jwks.Client.Extensions;
 
 namespace Fin.Api.Configuration
 {
     public static class DiConfig
     {
-        public static WebApplicationBuilder AddDiConfig(this WebApplicationBuilder builder)
+        public static IServiceCollection AddDiConfig(this IServiceCollection services)
         {
 
-            builder.Services.AddScoped<ITransacaoRepository, TransacaoRepository>();
-            builder.Services.AddScoped<ITransacaoService, TransactionService>();
-            builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
-            builder.Services.AddScoped<ICategoriaService, CategoriaService>();
-            builder.Services.AddScoped<INotificador, Notificador>();
-            builder.Services.AddScoped<IUser, AspNetUser>();
-            builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-            builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+            services.AddScoped<ITransacaoRepository, TransacaoRepository>();
+            services.AddScoped<ITransacaoService, TransactionService>();
+            services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+            services.AddScoped<ICategoriaService, CategoriaService>();
+            services.AddScoped<INotificador, Notificador>();
+            services.AddScoped<IUser, AspNetUser>();
+            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
 
-            builder.Services.AddHostedService<RegistroUsuarioIntegrationHandler>();
+            services.AddHostedService<RegistroUsuarioIntegrationHandler>();
 
-            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            return builder;
+            return services;
         }
     }
 }

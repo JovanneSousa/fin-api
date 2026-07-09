@@ -2,9 +2,9 @@
 {
     public static class CorsConfig
     {
-        public static WebApplicationBuilder AddCorsConfig(this WebApplicationBuilder builder)
+        public static IServiceCollection AddCorsConfig(this IServiceCollection services, IConfiguration configuration)
         {
-            var allowedOrigin = builder.Configuration
+            var allowedOrigin = configuration
                 .GetSection("MEU_APP")
                 .GetChildren()
                 .Select(x => x.Value)
@@ -15,7 +15,7 @@
 
             Console.WriteLine(allowedOrigin);
 
-            builder.Services.AddCors(o =>
+            services.AddCors(o =>
             {
                 o.AddPolicy("Production", policy =>
                 {
@@ -27,7 +27,7 @@
                 });
             });
 
-            return builder;
+            return services;
         }
     }
 }

@@ -1,8 +1,10 @@
-﻿using Fin.Infra.DTOs;
+﻿using Fin.Application.DTOs;
 using Fin.Domain.Models;
 using Fin.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Fin.Domain.Enums;
+using Fin.Application.Interfaces.Repositories;
+using Fin.Domain.Exceptions;
 
 namespace Fin.Infra.Repositories
 {
@@ -13,11 +15,10 @@ namespace Fin.Infra.Repositories
         }
 
         public async Task<decimal> GetSaldoTotal(string userId, DateTime date)
-            => await ExecuteAsync(async () =>
-                 await _context.Transactions
-                    .Where(t => t.UserId == userId && t.DataMovimentacao <= date)
-                    .SumAsync(t => t.Type == TransacaoType.Renda ? (decimal?)t.Valor ?? 0 : -(decimal?)t.Valor ?? 0)
-            );
+            => await ExecuteAsync(async () 
+                => await _context.Transactions
+                   .Where(t => t.UserId == userId && t.DataMovimentacao <= date)
+                   .SumAsync(t => t.Type == TransacaoType.Renda ? (decimal?)t.Valor ?? 0 : -(decimal?)t.Valor ?? 0));
 
         public async Task<List<SaldoMensalDTO>> GetValuesByMonth(
             string userId, 
@@ -38,6 +39,11 @@ namespace Fin.Infra.Repositories
                     })
                     .OrderBy(x => x.Mes)
                     .ToListAsync());
+
+        public async Task<bool> TransactionsExistsByCategoryAsync(string userId, string categoryId)
+            => await ExecuteAsync(async () 
+                => await _context.Transactions
+                    .AnyAsync(t => t.UserId == userId && t.CategoriaId == categoryId));
 
         public async Task<Transacao> GetByIdAsync(string id, string userId)
             => await ExecuteAsync(

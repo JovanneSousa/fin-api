@@ -2,12 +2,13 @@
 using Messages;
 using Messages.Integration;
 using FluentValidation.Results;
-using Fin.Infra.Notificacoes;
+using Fin.Application.Notificacoes;
 using Fin.Domain.Models;
 using AutoMapper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Fin.Application.Interfaces.Services;
 
 namespace Fin.Application.Services
 {

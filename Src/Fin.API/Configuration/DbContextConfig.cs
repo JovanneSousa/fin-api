@@ -5,20 +5,24 @@ namespace Fin.Api.Configuration
 {
     public static class DbContextConfig
     {
-        public static WebApplicationBuilder AddDbContextConfig(this WebApplicationBuilder builder)
+        public static IServiceCollection AddDbContextConfig(this IServiceCollection services, IConfiguration configuration)
         {
-            builder.Services.AddDbContext<ApiDbContext>(o =>
+            services.AddDbContext<ApiDbContext>(o =>
             {
                 var connectionString =
-                    builder.Configuration.GetConnectionString("DefaultConnection");
+                    configuration.GetConnectionString("DefaultConnection");
 
                 if (string.IsNullOrWhiteSpace(connectionString))
                     throw new InvalidOperationException("Connection string não configurada.");
 
                 o.UseNpgsql(connectionString);
+
+                o.LogTo(Console.WriteLine, LogLevel.Information);
+
+                o.EnableSensitiveDataLogging();
             });
 
-            return builder;
+            return services;
         }
     }
 }

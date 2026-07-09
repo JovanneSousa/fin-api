@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Fin.Application.Interfaces.Repositories;
+using Fin.Application.Interfaces.Services;
 using Fin.Domain.Enums;
 using Fin.Domain.Models;
-using Fin.Infra.DTOs;
-using Fin.Infra.Notificacoes;
-using Fin.Infra.Repositories;
+using Fin.Application.DTOs;
+using Fin.Application.http.RequestDTO;
+using Fin.Application.Notificacoes;
 
 namespace Fin.Application.Services
 {
@@ -37,7 +39,8 @@ namespace Fin.Application.Services
         }
 
         public async Task<IEnumerable<TransacaoDTO>> ListTransactionsAsync(string userId)
-            => _mapper.Map<IEnumerable<TransacaoDTO>>(await ExecuteAsync(
+            => _mapper.Map<IEnumerable<TransacaoDTO>>(
+                await ExecuteAsync(
                     async () => await _repository.GetAllAsync(userId)));
 
         public async Task<TransacaoDTO> GetTransactionAsync(string id, string userId)
@@ -47,22 +50,17 @@ namespace Fin.Application.Services
                 );
 
             if(transacao == null)
-            {
-                _notificador.Handle(new Notificacao("Transação não existe!"));
-                return null;
-            }
+                return RetornaErroProcessamento<TransacaoDTO>("Transação não existe!");
 
             if (transacao.UserId != userId) 
-            {
-                _notificador.Handle(new Notificacao("Você não tem permissão para ver essa Transação!"));
-                return null;
-            }
+                return RetornaErroProcessamento<TransacaoDTO>("Você não tem permissão para ver essa Transação!");
 
             return _mapper.Map<TransacaoDTO>(transacao);
         }
 
-        public async Task<Transacao> CreateTransactionAsync(Transacao transacao, string userId)
+        public async Task<TransacaoDTO> CreateTransactionAsync(TransactionRequest transactionRequest, string userId)
         {
+            var transacao = transactionRequest.ToDomain();
             transacao.DataMovimentacao =
                 DateTime.SpecifyKind(transacao.DataMovimentacao, DateTimeKind.Utc);
             transacao.UserId = userId;
@@ -74,10 +72,7 @@ namespace Fin.Application.Services
             }
 
             if(!await ExecuteAsync(async () => await _repository.AddAsync(transacao)))
-            {
-                _notificador.Handle(new Notificacao("Falha ao salvar transação!"));
-                return null;
-            };
+                return RetornaErroProcessamento<TransacaoDTO>("Falha ao salvar transação!");
 
             if (transacao.Type == TransacaoType.Renda && transacao.IsRecurring)
                 if (!await GerarRecorrencias(transacao)) return null;
@@ -85,7 +80,7 @@ namespace Fin.Application.Services
             if (transacao.Type == TransacaoType.Despesa && transacao.IsRecurring)
                     if(!await GerarParcelas(transacao)) return null;
 
-            return transacao;
+            return _mapper.Map<TransacaoDTO>(transacao);
         }
 
 
@@ -93,16 +88,10 @@ namespace Fin.Application.Services
         { 
             var existente = await ExecuteAsync(async () => await _repository.GetByIdAsync(id, userId));
             if (existente == null)
-            {
-                _notificador.Handle(new Notificacao("Transação não encontrada!"));
-                return null;
-            }
+                return RetornaErroProcessamento<TransacaoDTO>("Transação não encontrada!");
 
             if(existente.UserId != userId)
-            {
-                _notificador.Handle(new Notificacao("Você não tem permissão para atualizar essa transação!"));
-                return null;
-            }
+                return RetornaErroProcessamento<TransacaoDTO>("Você não tem permissão para atualizar essa transação!");
 
             transacaoDTO.Id = existente.Id;
             transacaoDTO.UserId = existente.UserId;
@@ -133,10 +122,7 @@ namespace Fin.Application.Services
 
             // Atualiza somente dados basicos
             if(!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
-            {
-                _notificador.Handle(new Notificacao("Falha ao atualizar transação!"));
-                return null;
-            } ;
+                return RetornaErroProcessamento<TransacaoDTO>("Falha ao atualizar transação!");
 
             return _mapper.Map<TransacaoDTO>(existente);
         }
@@ -146,28 +132,17 @@ namespace Fin.Application.Services
             var existing = await ExecuteAsync(
                 async () => await _repository.GetByIdAsync(id, usuarioId));
             if (existing == null) 
-            {
-                _notificador.Handle(new Notificacao("Transação não encontrada!"));
-                return false;
-            }  
+                return RetornaErroProcessamento<bool>("Transação não encontrada!");
+
             if(existing.UserId != usuarioId)
-            {
-                _notificador.Handle(new Notificacao("Você não tem permissão para excluir essa transação!"));
-                return false;
-            }
+                return RetornaErroProcessamento<bool>("Você não tem permissão para excluir essa transação!");
 
             if (existing.IsRecurring)
                 if (!await RemoverRecorrencias(existing.Id))
-                {
-                    _notificador.Handle(new Notificacao("Houve uma falha ao excluir as recorrências!"));
-                    return false;
-                }
+                    return RetornaErroProcessamento<bool>("Houve uma falha ao excluir as recorrências!");
 
             if(!await ExecuteAsync(async () => await _repository.DeleteAsync(existing)))
-            {
-                _notificador.Handle(new Notificacao("Houve um problema ao excluir a transação!"));
-                return false;
-            }
+                return RetornaErroProcessamento<bool>("Houve um problema ao excluir a transação!");
 
             return true;
         }
@@ -175,19 +150,13 @@ namespace Fin.Application.Services
         public async Task<IEnumerable<TransacaoDTO>> ListTransactionsByPeriodAsync(string userId, DateTime? startDate, DateTime? endDate)
         {
             if(startDate is null || endDate is null)
-            {
-                _notificador.Handle(new Notificacao("As datas iniciais e finais são obrigatórias!"));
-                return null;
-            } 
+                return RetornaErroProcessamento<IEnumerable<TransacaoDTO>>("As datas iniciais e finais são obrigatórias!");
 
             var start = startDate.Value;
             var end = endDate.Value;
 
             if(start > end)
-            {
-                _notificador.Handle(new Notificacao("A data de fim deve ser maior que a data de início!"));
-                return null;
-            }
+                return RetornaErroProcessamento<IEnumerable<TransacaoDTO>>("A data de fim deve ser maior que a data de início!");
 
             var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(start.Date);
             var fimUtc = TimeZoneInfo.ConvertTimeToUtc(end.Date.AddDays(1).AddTicks(-1));
@@ -197,10 +166,7 @@ namespace Fin.Application.Services
 
             var result = _mapper.Map<IEnumerable<TransacaoDTO>>(transacoes);
             if(result is null)
-            {
-                _notificador.Handle(new Notificacao("Houve um problema ao buscar as transações!"));
-                return null;
-            }
+                return RetornaErroProcessamento<IEnumerable<TransacaoDTO>>("Houve um problema ao buscar as transações!");
 
             return result;
         }
@@ -208,19 +174,13 @@ namespace Fin.Application.Services
         public async Task<IEnumerable<SaldoMensalDTO>> GetValuesByMonth(string userId, DateTime? startDate, DateTime? endDate)
         {
             if (startDate is null || endDate is null)
-            {
-                _notificador.Handle(new Notificacao("As datas iniciais e finais são obrigatórias!"));
-                return null;
-            }
+                return RetornaErroProcessamento<IEnumerable<SaldoMensalDTO>>("As datas iniciais e finais são obrigatórias!");
 
             var start = startDate.Value;
             var end = endDate.Value;
 
             if (start > end)
-            {
-                _notificador.Handle(new Notificacao("A data de fim deve ser maior que a data de início!"));
-                return null;
-            }
+                return RetornaErroProcessamento<IEnumerable<SaldoMensalDTO>>("A data de fim deve ser maior que a data de início!");
 
             var inicioUtc = TimeZoneInfo.ConvertTimeToUtc(start.Date);
             var fimUtc = TimeZoneInfo.ConvertTimeToUtc(end.Date.AddDays(1).AddTicks(-1));
@@ -242,10 +202,7 @@ namespace Fin.Application.Services
             existente.DataMovimentacao = transacaoDTO.DataMovimentacao;
 
             if (!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
-            {
-                _notificador.Handle(new Notificacao("Houve um erro ao atualizar a transação!"));
-                return null;
-            };
+                return RetornaErroProcessamento<TransacaoDTO>("Houve um erro ao atualizar a transação!");
 
             if (existente.Type == TransacaoType.Renda)
                 if (!await GerarRecorrencias(existente)) return null;
@@ -260,10 +217,7 @@ namespace Fin.Application.Services
         private async Task<TransacaoDTO> TransformaRecorrenciaEmUnica(Transacao existente, TransacaoDTO transacaoDTO)
         {
             if (!await RemoverRecorrencias(existente.Id))
-            {
-                _notificador.Handle(new Notificacao("Houve um erro excluindo as parcelas/recorrências"));
-                return null;
-            }
+                return RetornaErroProcessamento<TransacaoDTO>("Houve um erro excluindo as parcelas/recorrências");
 
             existente.IsRecurring = false;
             existente.RecorrenciaType = null;
@@ -280,34 +234,22 @@ namespace Fin.Application.Services
                 existente.Valor = Math.Round(existente.Valor * existente.Parcelas.Value, 2);
 
             if (!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
-            {
-                _notificador.Handle(new Notificacao("Houve um erro ao atualizar a transação!"));
-                return null;
-            }
-            ;
+                return RetornaErroProcessamento<TransacaoDTO>("Houve um erro ao atualizar a transação!");
+
             return _mapper.Map<TransacaoDTO>(existente);
         }
 
         private async Task<bool> GerarRecorrencias(Transacao origem)
         {
             if (origem.RecorrenciaEndDate == null || origem.RecorrenciaType == null)
-            {
-                _notificador.Handle(new Notificacao("A recorrência não pode ser nula"));
-                return true;
-            }
+                return RetornaErroProcessamento<bool>("A recorrência não pode ser nula");
 
             var transactions = GerarListaDeRecorrencia(origem);
             if (!transactions.Any())
-            {
-                _notificador.Handle(new Notificacao("Falha ao gerar recorrência"));
-                return true;
-            }
+                return RetornaErroProcessamento<bool>("Falha ao gerar recorrência");
 
             if (!await ExecuteAsync(async () => await _repository.AddRangeAsync(transactions)))
-            {
-                _notificador.Handle(new Notificacao("Houve um erro ao salvar as recorrências!"));
-                return true;
-            }
+                return RetornaErroProcessamento<bool>("Houve um erro ao salvar as recorrências!");
 
             return true;
         }
@@ -321,16 +263,10 @@ namespace Fin.Application.Services
             existente.RecorrenciaType = RecorrenciaType.Mensalmente;
 
             if(!await ExecuteAsync(async () => await _repository.UpdateAsync(existente)))
-            {
-                _notificador.Handle(new Notificacao("Falha ao atualizar base!"));
-                return false;
-            }
+                return RetornaErroProcessamento<bool>("Falha ao atualizar base!");
 
             if(!await RemoverRecorrencias(existente.Id))
-            {
-                _notificador.Handle(new Notificacao("Falha ao remover recorrências!"));
-                return false;
-            };
+                return RetornaErroProcessamento<bool>("Falha ao remover recorrências!");
 
             if (existente.Type == TransacaoType.Renda) 
             {
@@ -358,11 +294,8 @@ namespace Fin.Application.Services
         private async Task<bool> GerarParcelas(Transacao origem)
         {
             var parcelas = origem.Parcelas ?? 1;
-            if (!origem.ParcelaValida(parcelas)) 
-            {
-                _notificador.Handle(new Notificacao("Parcelas deve ser no mínimo 2"));
-                return false;
-            };
+            if (!origem.ParcelaValida()) 
+                return RetornaErroProcessamento<bool>("Parcelas deve ser no mínimo 2");
 
             var valorParcela = Math.Round(origem.Valor / parcelas, 2);
             var nomeOriginal = origem.Titulo;
@@ -372,10 +305,7 @@ namespace Fin.Application.Services
             origem.Valor = valorParcela;
 
             if(!await ExecuteAsync(async () => await _repository.UpdateAsync(origem)))
-            {
-                _notificador.Handle(new Notificacao("Houve um erro ao atualizar o a parcela base"));
-                return false;
-            };
+                return RetornaErroProcessamento<bool>("Houve um erro ao atualizar o a parcela base");
 
             var list = GeraListaDeParcelas(
                 origem, 
@@ -385,16 +315,10 @@ namespace Fin.Application.Services
                 );
 
             if (!list.Any())
-            {
-                _notificador.Handle(new Notificacao("Falha ao gerar parcelas!"));
-                return false;
-            }
+                return RetornaErroProcessamento<bool>("Falha ao gerar parcelas!");
 
             if(!await ExecuteAsync(async () => await _repository.AddRangeAsync(list)))
-            {
-                _notificador.Handle(new Notificacao("Houve um erro ao salvar as parcelas"));
-                return false;
-            }
+                return RetornaErroProcessamento<bool>("Houve um erro ao salvar as parcelas");
 
             return true;
         }

@@ -1,4 +1,7 @@
-﻿using Fin.Domain.Models;
+﻿using Fin.Application.DTOs;
+using Fin.Application.Interfaces.Repositories;
+using Fin.Domain.Enums;
+using Fin.Domain.Models;
 using Fin.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,10 +27,12 @@ namespace Fin.Infra.Repositories
                                 .ThenInclude(c => c.Cor)
                         .FirstOrDefaultAsync());
 
-        public async Task<IEnumerable<Categoria>> GetAllAsync(string userId)
+        public async Task<IEnumerable<CategoriaDTO>> GetAllAsync(string userId)
             => await ExecuteAsync(
                 async () => await _context.Categories
-                                .Where(c => c.UserId == userId || c.IsDefault)
+                                .Where(c => (c.UserId == userId || c.IsDefault) &&  
+                                    !_context.UserHiddenCategories
+                                        .Any(h => h.UserId == userId && h.CategoryId == c.Id))
                                 .Include(c => c.IconePadrao)
                                 .Include(c => c.IconeCategoriaUsuario
                                     .Where(c => c.UserId == userId))
@@ -36,6 +41,7 @@ namespace Fin.Infra.Repositories
                                 .Include(c => c.CorCategoriaUsuarios
                                             .Where(c => c.UserId == userId))
                                             .ThenInclude(c => c.Cor)
+                                .Select(c => CategoriaDTO.ToDto(c))
                                 .AsNoTracking()
                                 .ToListAsync());
 
@@ -63,22 +69,10 @@ namespace Fin.Infra.Repositories
                 return true;
             });
 
-        public async Task<bool> ExistsAsync(string userId, string name)
-            => await ExecuteAsync(
-                async () => await _context.Categories
-                                    .AnyAsync(c => (c.UserId == userId || c.IsDefault) && c.Name.ToLower() == name.ToLower()));
-
-        public async Task<bool> IsCategoryHiddenAsync(string userId, string name)
-            => await ExecuteAsync(async () =>
-            {
-                var category = await _context.Categories
-                    .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower() && c.IsDefault);
-
-                if (category == null || !category.IsDefault) return false;
-
-                return await _context.UserHiddenCategories
-                    .AnyAsync(uhc => uhc.UserId == userId && uhc.CategoryId == category.Id);
-            });
+        public async Task<bool> IsCategoryHiddenAsync(string userId, string categoryId)
+            => await ExecuteAsync(async () 
+                => await _context.UserHiddenCategories
+                    .AnyAsync(uhc => uhc.UserId == userId && uhc.CategoryId == categoryId));
 
         public async Task<bool> HiddenCategory(string userId, string categoriaId)
             => await ExecuteAsync(async () =>
@@ -93,34 +87,23 @@ namespace Fin.Infra.Repositories
         public async Task ShowHiddenCategory(string userId, Categoria categoria)
             => await ExecuteAsync(async () =>
             {
-                var hiddenCategory = await _context.UserHiddenCategories
-                    .FirstOrDefaultAsync(uhc => uhc.UserId == userId && uhc.CategoryId == categoria.Id);
-                if (hiddenCategory != null)
-                {
-                    _context.UserHiddenCategories.Remove(hiddenCategory);
-                    await SaveChangesAsync();
-                }
+                _context.UserHiddenCategories.Remove(
+                    await _context.UserHiddenCategories
+                        .FirstOrDefaultAsync(uhc => uhc.UserId == userId && uhc.CategoryId == categoria.Id));
+                await SaveChangesAsync();
             });
 
-        public async Task<List<Categoria>> ListCategoriesHiddenAsync(string userId)
-            => await ExecuteAsync(
-                async () => await _context.Categories
-                                .Where(c => c.IsDefault == true)
-                                .Where(c => _context.UserHiddenCategories
-                                    .Where(h => h.UserId == userId)
-                                    .Select(h => h.CategoryId)
-                                    .Contains(c.Id))
-                                .ToListAsync());
-
-        public async Task<List<Icon>> GetAllIconsAsync()
+        public async Task<IList<IconDTO>> GetAllIconsAsync()
             => await ExecuteAsync(
                 async () => await _context.Icon
                                 .OrderBy(i => i.Name)
+                                .Select(i => IconDTO.ToDto(i))
                                 .ToListAsync());
 
-        public async Task<List<Cor>> GetAllCorAsync()
+        public async Task<IList<CorDTO>> GetAllCorAsync()
             => await ExecuteAsync(
                 async () => await _context.Cor
+                                .Select(c => CorDTO.ToDto(c))
                                 .ToListAsync());
 
         public async Task<IconeCategoriaUsuario> GetIconsByUsuarioAsync(string usuarioId, string categoriaId)
@@ -164,5 +147,13 @@ namespace Fin.Infra.Repositories
                 await SaveChangesAsync();
                 return true;
             });
+
+        public async Task<Categoria> GetCategoryByNameAndUserIdAsync(string userId, string categoryName, TransacaoType categoryType)
+            => await ExecuteAsync(async () =>
+                await _context.Categories
+                    .FirstOrDefaultAsync(c => 
+                        (c.UserId == userId || c.IsDefault) &&
+                        c.Name.ToLower() == categoryName.ToLower() &&
+                        c.Type == categoryType));
     }
 }

@@ -1,10 +1,11 @@
-﻿using Fin.Infra.DTOs;
-using Fin.Api.Extensions;
+﻿using Fin.Application.DTOs;
 using Fin.Domain.Models;
-using Fin.Infra.Notificacoes;
-using Fin.Application.Services;
+using Fin.Application.Notificacoes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Fin.Application.http.RequestDTO;
+using Fin.Application.Interfaces.Services;
+using Jovanne.Jwks.Client.Extensions;
 
 namespace Fin.Api.Controllers
 {
@@ -16,9 +17,9 @@ namespace Fin.Api.Controllers
         private readonly ITransacaoService _transacaoService;
 
         public TransacoesController(
-            ITransacaoService service, 
-            IUser appUser, 
-            INotificador notificador) : base (notificador, appUser)
+            ITransacaoService service,
+            IUser appUser,
+            INotificador notificador) : base(notificador, appUser)
         {
             _transacaoService = service;
         }
@@ -29,7 +30,7 @@ namespace Fin.Api.Controllers
         /// <returns>O valor do saldo total.</returns>
         /// <response code="200">Retorna o saldo atual.</response>
         [HttpGet("saldo")]
-        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ClaimsAuthorize( "FIN:TRN_LER")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<decimal>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<decimal>> GetSaldoAtual() =>
@@ -54,7 +55,7 @@ namespace Fin.Api.Controllers
         /// <returns>Uma lista de transações filtradas.</returns>
         /// <response code="200">Retorna a lista de transações filtradas.</response>
         [HttpGet("periodo")]
-        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ClaimsAuthorize( "FIN:TRN_LER")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<IEnumerable<TransacaoDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TransacaoDTO>>> FiltrarTransacoes(
@@ -74,7 +75,7 @@ namespace Fin.Api.Controllers
         /// <returns>Uma lista de receita e despesas agrupadas por mês.</returns>
         /// <response code="200">Retorna a lista de receitas e despesas agrupadas.</response>
         [HttpGet("saldo-mes")]
-        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ClaimsAuthorize( "FIN:TRN_LER")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<IEnumerable<SaldoMensalDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<SaldoMensalDTO>>> ObterReceitaDespesaPorMes(
@@ -94,10 +95,10 @@ namespace Fin.Api.Controllers
         /// <response code="200">Transação criada com sucesso.</response>
         /// <response code="400">Se houver erros nos dados enviados.</response>
         [HttpPost("novo")]
-        [ClaimsAuthorize("permission", "FIN:TRN_CRIAR")]
+        [ClaimsAuthorize( "FIN:TRN_CRIAR")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<Transacao>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Transacao>> Post([FromBody] Transacao transacao)
+        public async Task<ActionResult<TransacaoDTO>> Post([FromBody] TransactionRequest transacao)
             => CustomResponse(await _transacaoService.CreateTransactionAsync(transacao, UsuarioId));
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Transação excluída com sucesso.</response>
         /// <response code="404">Se a transação não for encontrada.</response>
         [HttpDelete("{id}")]
-        [ClaimsAuthorize("permission", "FIN:TRN_EXCLUIR")]
+        [ClaimsAuthorize( "FIN:TRN_EXCLUIR")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<bool>),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
@@ -123,7 +124,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Retorna a transação solicitada.</response>
         /// <response code="404">Se a transação não for encontrada.</response>
         [HttpGet("{id}")]
-        [ClaimsAuthorize("permission", "FIN:TRN_LER")]
+        [ClaimsAuthorize( "FIN:TRN_LER")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<TransacaoDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
@@ -139,7 +140,7 @@ namespace Fin.Api.Controllers
         /// <response code="200">Transação atualizada com sucesso.</response>
         /// <response code="400">Se houver erros nos dados enviados.</response>
         [HttpPut("{id}")]
-        [ClaimsAuthorize("permission", "FIN:TRN_EDITAR")]
+        [ClaimsAuthorize( "FIN:TRN_EDITAR")]
         [ProducesResponseType(typeof(ResponseSuccessDTO<TransacaoDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErrorDTO), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TransacaoDTO>> Update(string id, [FromBody] TransacaoDTO transacao)

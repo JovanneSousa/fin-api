@@ -1,25 +1,30 @@
 using Configuration;
 using Fin.Api.Configuration;
 using Fin.Api.Configuration.Swagger;
+using Fin.API.Configuration;
+using Fin.API.Handlers;
 using Fin.Application.Mapper;
+using Jovanne.Jwks.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var configuration = builder.Configuration;
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder
+builder.Services
+    .AddApiConfig()
     .AddDiConfig()
     .AddSwaggerConfig()
-    .AddDbContextConfig()
-    .AddCorsConfig()
-    .AddIdentityConfig()
-    .AddSerilogConfig()
-    .Services.AddAutoMapper(cfg =>
+    .AddDbContextConfig(configuration)
+    .AddCorsConfig(configuration)
+    .AddJovanneJwksClient(configuration, builder.Environment.IsDevelopment())
+    .AddSerilogConfig(builder.Host)
+    .AddAutoMapper(cfg =>
     {
         cfg.AddMaps(typeof(ApplicationAssemblyMarker).Assembly);
     });
+builder.Services.
+    AddProblemDetails()
+    .AddExceptionHandler<GlobalExceptionHandler>();
 
 await builder.Services
     .AddRabbitConfiguration(builder.Configuration);
@@ -32,12 +37,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseExceptionHandler();
 
 app.UseRouting();
 
 app.UseCors("Production");
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
